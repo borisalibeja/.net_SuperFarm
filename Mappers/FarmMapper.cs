@@ -28,14 +28,14 @@ public static class FarmMapper
         };
     }
 
-    public static Farm ToFarm(FarmDisplayDto farmDisplayDto)
+    public static FarmDisplayDto ToFarmDisplayDto(Farm farm)
     {
-        return new Farm
+        return new FarmDisplayDto
         {
-            UserId = farmDisplayDto.UserId,
-            FarmName = farmDisplayDto.FarmName,
-            FarmAddress = farmDisplayDto.FarmAddress,
-            CreationDate = farmDisplayDto.CreationDate
+            UserId = farm.UserId,
+            FarmName = farm.FarmName ?? string.Empty,
+            FarmAddress = farm.FarmAddress ?? string.Empty,
+            CreationDate = farm.CreationDate
         };
     }
 }

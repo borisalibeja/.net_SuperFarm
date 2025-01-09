@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SuperFarm.Mappers;
-using SuperFarm.Models.DTOs;
+using SuperFarm.Models.DTOs.FarmDTOs;
 using SuperFarm.Repositories;
+using SuperFarm.Mappers;
 
 namespace SuperFarm.Controllers
 {
@@ -24,7 +23,7 @@ namespace SuperFarm.Controllers
             {
                 var farm = await _farmRepository.CreateFarmAsync(farmCreateDto.ToFarm());
 
-                return CreatedAtRoute(nameof(GetFarmByIdAsync), new { id = farm.Id }, farm.ToFarmDisplayDto());
+                return CreatedAtRoute(nameof(GetFarmByIdAsync), new { id = farm.ToFarmDisplayDto() }, farm.ToFarmDisplayDto());
             }
             catch (Exception ex)
             {
@@ -55,7 +54,7 @@ namespace SuperFarm.Controllers
         {
             try
             {
-                if (id != farmUpdateDto.Id)
+                if (id != farmUpdateDto.UserId)
                 {
                     return BadRequest("Ids mismatch");
                 }

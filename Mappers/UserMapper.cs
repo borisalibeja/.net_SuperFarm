@@ -9,10 +9,10 @@ public static class UserMapper
     {
         return new User
         {
-            Id = userCreateDto.Id,
             Name = userCreateDto.Name,
             Surname = userCreateDto.Surname,
             Email = userCreateDto.Email,
+            Password = userCreateDto.Password,
             PhoneNr = userCreateDto.PhoneNr,
             Age = userCreateDto.Age,
             Address = userCreateDto.Address,
@@ -28,6 +28,7 @@ public static class UserMapper
             Name = userUpdateDto.Name,
             Surname = userUpdateDto.Surname,
             Email = userUpdateDto.Email,
+            Password = userUpdateDto.Password,
             PhoneNr = userUpdateDto.PhoneNr,
             Age = userUpdateDto.Age,
             Address = userUpdateDto.Address,
@@ -35,18 +36,18 @@ public static class UserMapper
         };
     }
 
-    public static User ToUser(UserDisplayDto userDisplayDto)
+    public static UserDisplayDto ToUserDisplayDto(User user)
     {
-        return new User
+        return new UserDisplayDto
         {
-            Id = userDisplayDto.Id,
-            Name = userDisplayDto.Name,
-            Surname = userDisplayDto.Surname,
-            Email = userDisplayDto.Email,
-            PhoneNr = userDisplayDto.PhoneNr,
-            Age = userDisplayDto.Age,
-            Address = userDisplayDto.Address,
-            RoleName = userDisplayDto.RoleName,
+            Id = user.Id,
+            Name = user.Name,
+            Surname = user.Surname,
+            Email = user.Email,
+            PhoneNr = user.PhoneNr,
+            Age = user.Age,
+            Address = user.Address,
+            RoleName = user.RoleName,
         };
     }
 }

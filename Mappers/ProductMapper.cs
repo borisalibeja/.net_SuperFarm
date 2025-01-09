@@ -1,45 +1,43 @@
 using SuperFarm.Models;
 using SuperFarm.Models.DTOs.ProductDTOs;
 
-namespace SuperFarm.Mappers;
-
-
-public static class ProductMapper
+namespace SuperFarm.Mappers
 {
-    public static Product ToProduct(ProductDisplayDto productDisplayDto)
+    public static class ProductMapper
     {
-        return new Product
+        public static Product ToProduct(ProductCreateDto productCreateDto)
         {
-            Id = productDisplayDto.Id,
-            ProductName = productDisplayDto.ProductName,
-            ProductPrice = productDisplayDto.ProductPrice,
-            ProductCategory = productDisplayDto.ProductCategory,
-            FarmId = productDisplayDto.FarmId
-        };
-    }
+            return new Product
+            {
+                ProductName = productCreateDto.ProductName,
+                ProductPrice = productCreateDto.ProductPrice,
+                ProductCategory = productCreateDto.ProductCategory,
+                FarmId = productCreateDto.FarmId
+            };
+        }
 
-    public static Product ToProduct(ProductCreateDto productCreateDto)
-    {
-        return new Product
+        public static Product ToProduct(ProductUpdateDto productUpdateDto)
         {
-            Id = productCreateDto.Id,
-            ProductName = productCreateDto.ProductName,
-            ProductPrice = productCreateDto.ProductPrice,
-            ProductCategory = productCreateDto.ProductCategory,
-            FarmId = productCreateDto.FarmId
-        };
-    }
+            return new Product
+            {
+                Id = productUpdateDto.Id,
+                ProductName = productUpdateDto.ProductName,
+                ProductPrice = productUpdateDto.ProductPrice,
+                ProductCategory = productUpdateDto.ProductCategory,
+                FarmId = productUpdateDto.FarmId
+            };
+        }
 
-    public static Product ToProduct(ProductUpdateDto productUpdateDto)
-    {
-        return new Product
+        public static ProductDisplayDto ToProductDisplayDto(Product product)
         {
-            Id = productUpdateDto.Id,
-            ProductName = productUpdateDto.ProductName,
-            ProductPrice = productUpdateDto.ProductPrice,
-            ProductCategory = productUpdateDto.ProductCategory,
-            FarmId = productUpdateDto.FarmId
-        };
+            return new ProductDisplayDto
+            {
+                Id = product.Id,
+                ProductName = product.ProductName,
+                ProductPrice = product.ProductPrice,
+                ProductCategory = product.ProductCategory,
+                FarmId = product.FarmId
+            };
+        }
     }
 }
-
