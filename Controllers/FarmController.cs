@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using SuperFarm.Models.DTOs.FarmDTOs;
 using SuperFarm.Repositories;
 using SuperFarm.Mappers;
+using SuperFarm.Repositories.FarmRepositories;
 
 namespace SuperFarm.Controllers
 {

@@ -40,3 +40,4 @@ C:\Users\emerg\OneDrive\Desktop\code\dotnet_SuperFarm\SuperFarm\bin\Debug\net9.0
 C:\Users\emerg\OneDrive\Desktop\code\dotnet_SuperFarm\SuperFarm\bin\Debug\net9.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\emerg\OneDrive\Desktop\code\dotnet_SuperFarm\SuperFarm\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\emerg\OneDrive\Desktop\code\dotnet_SuperFarm\SuperFarm\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\emerg\OneDrive\Desktop\code\dotnet_SuperFarm\SuperFarm\obj\Debug\net9.0\SuperFarm.sourcelink.json

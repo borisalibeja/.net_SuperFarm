@@ -1,4 +1,4 @@
-using SuperFarm.Repositories;
+using SuperFarm.Repositories.FarmRepositories;
 
 var builder = WebApplication.CreateBuilder(args);
 

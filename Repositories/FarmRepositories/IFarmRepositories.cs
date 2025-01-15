@@ -1,6 +1,6 @@
 using SuperFarm.Models;
 
-namespace SuperFarm.Repositories;
+namespace SuperFarm.Repositories.FarmRepositories;
 
 public interface IFarmRepositories
 {

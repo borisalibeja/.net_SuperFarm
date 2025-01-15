@@ -5,7 +5,7 @@ namespace SuperFarm.Mappers
 {
     public static class ProductMapper
     {
-        public static Product ToProduct(ProductCreateDto productCreateDto)
+        public static Product ToProduct(this ProductCreateDto productCreateDto)
         {
             return new Product
             {
@@ -16,7 +16,7 @@ namespace SuperFarm.Mappers
             };
         }
 
-        public static Product ToProduct(ProductUpdateDto productUpdateDto)
+        public static Product ToProduct(this ProductUpdateDto productUpdateDto)
         {
             return new Product
             {
@@ -28,7 +28,7 @@ namespace SuperFarm.Mappers
             };
         }
 
-        public static ProductDisplayDto ToProductDisplayDto(Product product)
+        public static ProductDisplayDto ToProductDisplayDto(this Product product)
         {
             return new ProductDisplayDto
             {

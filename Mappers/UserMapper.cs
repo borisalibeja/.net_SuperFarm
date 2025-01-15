@@ -5,7 +5,7 @@ namespace SuperFarm.Mappers;
 
 public static class UserMapper
 {
-    public static User ToUser(UserCreateDto userCreateDto)
+    public static User ToUser(this UserCreateDto userCreateDto)
     {
         return new User
         {
@@ -20,7 +20,7 @@ public static class UserMapper
         };
     }
 
-    public static User ToUser(UserUpdateDto userUpdateDto)
+    public static User ToUser(this UserUpdateDto userUpdateDto)
     {
         return new User
         {
@@ -36,7 +36,7 @@ public static class UserMapper
         };
     }
 
-    public static UserDisplayDto ToUserDisplayDto(User user)
+    public static UserDisplayDto ToUserDisplayDto(this User user)
     {
         return new UserDisplayDto
         {
