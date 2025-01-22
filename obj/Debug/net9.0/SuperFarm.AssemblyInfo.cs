@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SuperFarm")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1b4ae6168b68cd7d6e86c0e11446fcd1d0163de1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e1df447dd44e4e1e266fbb6b7d0b46119200a9aa")]
 [assembly: System.Reflection.AssemblyProductAttribute("SuperFarm")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SuperFarm")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

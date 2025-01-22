@@ -19,7 +19,7 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
         public async Task<IEnumerable<User>> GetAllUserAsync()
         {
             await using var connection = new NpgsqlConnection(_connectionString);
-            var sql = "SELECT user_id, user_name, first_name, last_name, email, password, phone_nr, age, address, role FROM users";
+            var sql = "SELECT * FROM users";
             var users = await connection.QueryAsync<User>(sql);
             foreach (var user in users)
             {
@@ -31,11 +31,11 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
         public async Task<User?> GetUserByIdAsync(Guid id)
         {
             await using var connection = new NpgsqlConnection(_connectionString);
-            var sql = "SELECT id, name, surname, email, password, phone_nr AS PhoneNr, age, address, role_name AS RoleName FROM users WHERE id = @Id";
+            var sql = "SELECT user_id, first_name, last_name, email, password, phone_nr, age, address, role FROM users WHERE user_id = @Id";
             var user = await connection.QueryFirstOrDefaultAsync<User>(sql, new { Id = id });
-            if (user != null)
+            if (user != null && Enum.TryParse(typeof(Role), user.Role.ToString(), out var role))
             {
-                user.Role = Enum.Parse<Role>(user.Role.ToString());
+                user.Role = (Role)role;
             }
             return user;
         }

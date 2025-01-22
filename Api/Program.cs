@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Converters;
 using System.Text;
 using SuperFarm.Infrastructure.Repositories.FarmRepositories;
 using SuperFarm.Infrastructure.Repositories.UserRepositories;
@@ -13,12 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers()
-    .AddNewtonsoftJson(options =>
-    {
-        options.SerializerSettings.Converters.Add(new StringEnumConverter());
-    });
-
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
@@ -45,6 +39,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
+builder.Services.AddAuthorization(options =>
+{
+    // Add policy for Admin role
+    options.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("CustomerPolicy", policy => policy.RequireRole("Customer"));
+    options.AddPolicy("FarmerPolicy", policy => policy.RequireRole("Farmer"));
+});
 
 var app = builder.Build();
 
@@ -60,7 +64,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 
-app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

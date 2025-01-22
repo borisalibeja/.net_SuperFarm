@@ -13,9 +13,8 @@ namespace SuperFarm.Api.Controllers
         private readonly IUserRepositories _userRepository = userRepository;
 
 
-
-        [Authorize(Roles = "Admin")]
         [HttpGet("{id}", Name = "GetUserByIdAsync")]
+        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> GetUserByIdAsync(Guid id)
         {
             try

@@ -26,23 +26,23 @@ namespace SuperFarm.Services
 
         public async Task<TokenResponseDto?> LoginAsync(UserLoginDto request)
         {
-
-            var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(
-                "SELECT * FROM Users WHERE user_name = @Username",
-                new { Username = request.Username });
-
-            if (user is null)
+            var sql = "SELECT user_id AS Id, user_name AS Username, password AS Password, first_name AS FirstName, last_name AS LastName, age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role FROM Users WHERE user_name = @Username";
+            var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(sql, new { Username = request.Username }).ConfigureAwait(false);
+            if (user == null)
             {
+                Console.WriteLine("User not found");
                 return null;
             }
 
             if (new PasswordHasher<User>().VerifyHashedPassword(user, user.Password, request.Password)
                 == PasswordVerificationResult.Failed)
             {
+                Console.WriteLine("Password verification failed");
                 return null;
             }
 
-            return await CreateTokenResponse(user);
+            Console.WriteLine($"User found: {user.Username}, Id: {user.Id}");
+            return await CreateTokenResponse(user).ConfigureAwait(false);
         }
 
         public async Task<User?> RegisterAsync(UserCreateDto request)
@@ -94,11 +94,13 @@ namespace SuperFarm.Services
         }
         public string CreateToken(User user)
         {
+            ArgumentNullException.ThrowIfNull(user);
+            Console.WriteLine($"Creating token for user: {user.Username}, Id: {user.Id}");
             var claims = new List<Claim>
             {
-                new(ClaimTypes.Name, user.Username),
-                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new(ClaimTypes.Role, user.Role.ToString())
+                new Claim(ClaimTypes.Name, user.Username?? throw new ArgumentNullException(nameof(user.Username))),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role.ToString())
             };
 
             var key = new SymmetricSecurityKey(
@@ -117,12 +119,12 @@ namespace SuperFarm.Services
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
         }
 
-        private async Task<TokenResponseDto> CreateTokenResponse(User? user)
+        private async Task<TokenResponseDto> CreateTokenResponse(User user)
         {
             return new TokenResponseDto
             {
-                AccessToken = CreateToken(user ?? throw new ArgumentNullException(nameof(user))),
-                RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
+                AccessToken = CreateToken(user),
+                RefreshToken = await GenerateAndSaveRefreshTokenAsync(user).ConfigureAwait(false)
             };
         }
 
@@ -136,18 +138,18 @@ namespace SuperFarm.Services
             return await CreateTokenResponse(user);
         }
 
-        private async Task<User?> ValidateRefreshTokenAsync(Guid userId, string refreshToken)
+        private async Task<User?> ValidateRefreshTokenAsync(Guid id, string refreshToken)
         {
 
 
             var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(
-                "SELECT * FROM Users WHERE user_id = @UserId AND RefreshToken = @RefreshToken AND RefreshTokenExpiryTime > @CurrentTime",
-                new { UserId = userId, RefreshToken = refreshToken, CurrentTime = DateTime.UtcNow });
+                "SELECT * FROM Users WHERE user_id = @Id AND RefreshToken = @RefreshToken AND RefreshTokenExpiryTime > @CurrentTime",
+                new { Id = id, RefreshToken = refreshToken, CurrentTime = DateTime.UtcNow });
 
             return user;
         }
 
-        private string GenerateRefreshToken()
+        private static string GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
             using var rng = RandomNumberGenerator.Create();

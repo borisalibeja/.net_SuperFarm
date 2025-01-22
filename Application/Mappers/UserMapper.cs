@@ -8,6 +8,7 @@ public static class UserMapper
     {
         return new User
         {
+            Id = userCreateDto.Id,
             Username = userCreateDto.Username,
             Password = userCreateDto.Password,
             FirstName = userCreateDto.FirstName,
@@ -24,6 +25,7 @@ public static class UserMapper
     {
         return new User
         {
+            Id = userUpdateDto.Id,
             Username = userUpdateDto.Username,
             Password = userUpdateDto.Password,
             FirstName = userUpdateDto.FirstName,
@@ -40,6 +42,7 @@ public static class UserMapper
     {
         return new UserDisplayDto
         {
+            Id = user.Id,
             Username = user.Username,
             Password = user.Password,
             FirstName = user.FirstName,
