@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using SuperFarm.Infrastructure.Repositories.UserRepositories;
+using SuperFarm.Application.DTOs;
+using SuperFarm.Domain.Entities;
 using SuperFarm.Services;
 
 namespace SuperFarm.Api.Controllers
@@ -9,39 +10,32 @@ namespace SuperFarm.Api.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly JwtTokenService _jwtTokenService;
-        private readonly IUserRepositories _userRepository;
+        private readonly IAuthService _authService;
 
-        public AuthController(IUserRepositories userRepository, JwtTokenService jwtTokenService)
+        public AuthController(IAuthService authService)
         {
-            _jwtTokenService = jwtTokenService;
-            _userRepository = userRepository;
+            _authService = authService;
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<ActionResult<TokenResponseDto>> Login(UserLoginDto request)
         {
-            var user = await _userRepository.GetUserByEmailAsync(request.Email);
-            if (user == null || !VerifyPassword(request.Password, user.Password))
-            {
-                return Unauthorized();
-            }
+            var result = await _authService.LoginAsync(request);
+            if (result is null)
+                return BadRequest("Invalid username or password.");
 
-            var token = _jwtTokenService.GenerateToken(user.Id.ToString(), user.RoleName.ToString());
-            return Ok(new { Token = token });
+            return Ok(result);
         }
 
-        private bool VerifyPassword(string inputPassword, string storedHash)
+        [HttpPost("register")]
+        public async Task<ActionResult<User>> Register(UserCreateDto request)
         {
-            // Implement your password verification logic here
-            // For example, use a hashing library to compare the hashed password
-            return inputPassword == storedHash; // Replace this with your actual verification logic
+            var result = await _authService.RegisterAsync(request);
+            if (result is null)
+                return BadRequest("Username already exists.");
+
+            return Ok(result);
         }
     }
 
-    public class LoginRequest
-    {
-        public required string Email { get; set; }
-        public required string Password { get; set; }
-    }
 }

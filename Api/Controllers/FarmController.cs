@@ -33,7 +33,7 @@ namespace SuperFarm.Controllers
         }
 
         [HttpGet("{id}", Name = "GetFarmByIdAsync")]
-        public async Task<IActionResult> GetFarmByIdAsync(int id)
+        public async Task<IActionResult> GetFarmByIdAsync(Guid id)
         {
             try
             {
@@ -51,7 +51,7 @@ namespace SuperFarm.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateFarmAsync(int id, FarmUpdateDto farmUpdateDto)
+        public async Task<IActionResult> UpdateFarmAsync(Guid id, FarmUpdateDto farmUpdateDto)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace SuperFarm.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFarmAsync(int id)
+        public async Task<IActionResult> DeleteFarmAsync(Guid id)
         {
             try
             {

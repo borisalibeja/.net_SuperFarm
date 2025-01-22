@@ -21,7 +21,7 @@ public class ProductRepository : IProductRepositories
         return await connection.QueryAsync<Product>("SELECT * FROM farm");
     }
 
-    public async Task<Product?> GetProductByIdAsync(int id)
+    public async Task<Product?> GetProductByIdAsync(Guid id)
     {
         using var connection = new NpgsqlConnection(_connectionString);
         return await connection.QueryFirstOrDefaultAsync<Product>("SELECT * FROM product where user_id = @UserId", new { id });
@@ -42,7 +42,7 @@ public class ProductRepository : IProductRepositories
         return product;
     }
 
-    public async Task DeleteProductAsync(int id)
+    public async Task DeleteProductAsync(Guid id)
     {
         using var connection = new NpgsqlConnection(_connectionString);
         await connection.ExecuteAsync("DELETE FROM product WHERE user_id = @UserId", new { id });

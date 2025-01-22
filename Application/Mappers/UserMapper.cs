@@ -1,7 +1,5 @@
 using SuperFarm.Domain.Entities;
 using SuperFarm.Application.DTOs;
-using SuperFarm.Domain.Enums;
-
 namespace SuperFarm.Application.Mappers;
 
 public static class UserMapper
@@ -10,14 +8,15 @@ public static class UserMapper
     {
         return new User
         {
-            Name = userCreateDto.Name,
-            Surname = userCreateDto.Surname,
-            Email = userCreateDto.Email,
+            Username = userCreateDto.Username,
             Password = userCreateDto.Password,
+            FirstName = userCreateDto.FirstName,
+            LastName = userCreateDto.LastName,
+            Email = userCreateDto.Email,
             PhoneNr = userCreateDto.PhoneNr,
             Age = userCreateDto.Age,
             Address = userCreateDto.Address,
-            RoleName = userCreateDto.RoleName
+            Role = userCreateDto.Role
         };
     }
 
@@ -25,15 +24,15 @@ public static class UserMapper
     {
         return new User
         {
-            Id = userUpdateDto.Id,
-            Name = userUpdateDto.Name,
-            Surname = userUpdateDto.Surname,
-            Email = userUpdateDto.Email,
+            Username = userUpdateDto.Username,
             Password = userUpdateDto.Password,
-            PhoneNr = userUpdateDto.PhoneNr,
+            FirstName = userUpdateDto.FirstName,
+            LastName = userUpdateDto.LastName,
             Age = userUpdateDto.Age,
+            Email = userUpdateDto.Email,
+            PhoneNr = userUpdateDto.PhoneNr,
             Address = userUpdateDto.Address,
-            RoleName = userUpdateDto.RoleName
+            Role = userUpdateDto.Role
         };
     }
 
@@ -41,14 +40,15 @@ public static class UserMapper
     {
         return new UserDisplayDto
         {
-            Id = user.Id,
-            Name = user.Name,
-            Surname = user.Surname,
+            Username = user.Username,
+            Password = user.Password,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
             Email = user.Email,
             PhoneNr = user.PhoneNr,
             Age = user.Age,
             Address = user.Address,
-            RoleName = user.RoleName,
+            Role = user.Role
         };
     }
 }

@@ -24,7 +24,7 @@ namespace SuperFarm.Controllers
             {
                 var product = await _productRepository.CreateProductAsync(productCreateDto.ToProduct());
 
-                return CreatedAtRoute(nameof(GetProductByIdAsync), new { id = product.Id }, product.ToProductDisplayDto());
+                return CreatedAtRoute(nameof(GetProductByIdAsync), new { id = product.ProductId }, product.ToProductDisplayDto());
             }
             catch (Exception ex)
             {
@@ -33,7 +33,7 @@ namespace SuperFarm.Controllers
         }
 
         [HttpGet("{id}", Name = "GetProductByIdAsync")]
-        public async Task<IActionResult> GetProductByIdAsync(int id)
+        public async Task<IActionResult> GetProductByIdAsync(Guid id)
         {
             try
             {
@@ -51,11 +51,11 @@ namespace SuperFarm.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProductAsync(int id, ProductUpdateDto productUpdateDto)
+        public async Task<IActionResult> UpdateProductAsync(Guid id, ProductUpdateDto productUpdateDto)
         {
             try
             {
-                if (id != productUpdateDto.Id)
+                if (id != productUpdateDto.ProductId)
                 {
                     return BadRequest("Ids mismatch");
                 }
@@ -74,7 +74,7 @@ namespace SuperFarm.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProductAsync(int id)
+        public async Task<IActionResult> DeleteProductAsync(Guid id)
         {
             try
             {

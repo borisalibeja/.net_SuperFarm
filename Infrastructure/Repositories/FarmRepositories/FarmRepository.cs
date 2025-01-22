@@ -21,7 +21,7 @@ public class FarmRepository : IFarmRepositories
         return await connection.QueryAsync<Farm>("SELECT * FROM farms");
     }
 
-    public async Task<Farm?> GetFarmByIdAsync(int id)
+    public async Task<Farm?> GetFarmByIdAsync(Guid id)
     {
         using var connection = new NpgsqlConnection(_connectionString);
         return await connection.QueryFirstOrDefaultAsync<Farm>("SELECT * FROM farms where user_id = @UserId", new { id });
@@ -31,7 +31,7 @@ public class FarmRepository : IFarmRepositories
     {
         using var connection = new NpgsqlConnection(_connectionString);
         var sql = "INSERT INTO farms (user_id, farm_name, farm_address, creation_date) VALUES (@UserId, @FarmName, @FarmAddress, @CreationDate) RETURNING user_id";
-        var createdId = await connection.ExecuteScalarAsync<int>(sql, farm);
+        var createdId = await connection.ExecuteScalarAsync<Guid>(sql, farm);
         farm.UserId = createdId;
         return farm;
     }
@@ -43,7 +43,7 @@ public class FarmRepository : IFarmRepositories
         return farm;
     }
 
-    public async Task DeleteFarmAsync(int id)
+    public async Task DeleteFarmAsync(Guid id)
     {
         using var connection = new NpgsqlConnection(_connectionString);
         await connection.ExecuteAsync("DELETE FROM farms WHERE user_id = @UserId", new { id });

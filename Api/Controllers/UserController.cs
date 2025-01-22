@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SuperFarm.Application.DTOs;
 using SuperFarm.Application.Mappers;
@@ -11,23 +12,11 @@ namespace SuperFarm.Api.Controllers
     {
         private readonly IUserRepositories _userRepository = userRepository;
 
-        [HttpPost("signup")]
-        public async Task<IActionResult> CreateUser(UserCreateDto userCreateDto)
-        {
-            try
-            {
-                var user = await _userRepository.CreateUserAsync(userCreateDto.ToUser());
 
-                return CreatedAtRoute(nameof(GetUserByIdAsync), new { id = user.Id }, user.ToUserDisplayDto());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id}", Name = "GetUserByIdAsync")]
-        public async Task<IActionResult> GetUserByIdAsync(int id)
+        public async Task<IActionResult> GetUserByIdAsync(Guid id)
         {
             try
             {
@@ -45,7 +34,7 @@ namespace SuperFarm.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUserAsync(int id, UserUpdateDto userUpdateDto)
+        public async Task<IActionResult> UpdateUserAsync(Guid id, UserUpdateDto userUpdateDto)
         {
             try
             {
@@ -70,7 +59,7 @@ namespace SuperFarm.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUserAsync(int id)
+        public async Task<IActionResult> DeleteUserAsync(Guid id)
         {
             try
             {

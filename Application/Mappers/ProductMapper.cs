@@ -9,10 +9,11 @@ namespace SuperFarm.Application.Mappers
         {
             return new Product
             {
+                ProductId = productCreateDto.ProductId,
+                FarmId = productCreateDto.FarmId,
                 ProductName = productCreateDto.ProductName,
                 ProductPrice = productCreateDto.ProductPrice,
                 ProductCategory = productCreateDto.ProductCategory,
-                FarmId = productCreateDto.FarmId
             };
         }
 
@@ -20,11 +21,11 @@ namespace SuperFarm.Application.Mappers
         {
             return new Product
             {
-                Id = productUpdateDto.Id,
+                ProductId = productUpdateDto.ProductId,
+                FarmId = productUpdateDto.FarmId,
                 ProductName = productUpdateDto.ProductName,
                 ProductPrice = productUpdateDto.ProductPrice,
                 ProductCategory = productUpdateDto.ProductCategory,
-                FarmId = productUpdateDto.FarmId
             };
         }
 
@@ -32,11 +33,11 @@ namespace SuperFarm.Application.Mappers
         {
             return new ProductDisplayDto
             {
-                Id = product.Id,
+                ProductId = product.ProductId,
+                FarmId = product.FarmId,
                 ProductName = product.ProductName,
                 ProductPrice = product.ProductPrice,
                 ProductCategory = product.ProductCategory,
-                FarmId = product.FarmId
             };
         }
     }

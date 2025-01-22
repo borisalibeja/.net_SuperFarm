@@ -10,6 +10,7 @@ public static class FarmMapper
     {
         return new Farm
         {
+            FarmId = farmCreateDto.FarmId,
             UserId = farmCreateDto.UserId,
             FarmName = farmCreateDto.FarmName,
             FarmAddress = farmCreateDto.FarmAddress,
@@ -21,6 +22,7 @@ public static class FarmMapper
     {
         return new Farm
         {
+            FarmId = farmUpdateDto.FarmId,
             UserId = farmUpdateDto.UserId,
             FarmName = farmUpdateDto.FarmName,
             FarmAddress = farmUpdateDto.FarmAddress,
@@ -32,6 +34,7 @@ public static class FarmMapper
     {
         return new FarmDisplayDto
         {
+            FarmId = farm.FarmId,
             UserId = farm.UserId,
             FarmName = farm.FarmName ?? string.Empty,
             FarmAddress = farm.FarmAddress ?? string.Empty,

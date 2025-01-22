@@ -19,23 +19,23 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
         public async Task<IEnumerable<User>> GetAllUserAsync()
         {
             await using var connection = new NpgsqlConnection(_connectionString);
-            var sql = "SELECT id, name, surname, email, password, phone_nr AS PhoneNr, age, address, role_name AS RoleName FROM users";
+            var sql = "SELECT user_id, user_name, first_name, last_name, email, password, phone_nr, age, address, role FROM users";
             var users = await connection.QueryAsync<User>(sql);
             foreach (var user in users)
             {
-                user.RoleName = Enum.Parse<Role>(user.RoleName.ToString());
+                user.Role = Enum.Parse<Role>(user.Role.ToString());
             }
             return users;
         }
 
-        public async Task<User?> GetUserByIdAsync(int id)
+        public async Task<User?> GetUserByIdAsync(Guid id)
         {
             await using var connection = new NpgsqlConnection(_connectionString);
             var sql = "SELECT id, name, surname, email, password, phone_nr AS PhoneNr, age, address, role_name AS RoleName FROM users WHERE id = @Id";
             var user = await connection.QueryFirstOrDefaultAsync<User>(sql, new { Id = id });
             if (user != null)
             {
-                user.RoleName = Enum.Parse<Role>(user.RoleName.ToString());
+                user.Role = Enum.Parse<Role>(user.Role.ToString());
             }
             return user;
         }
@@ -47,7 +47,7 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
             var user = await connection.QueryFirstOrDefaultAsync<User>(sql, new { Email = email });
             if (user != null)
             {
-                user.RoleName = Enum.Parse<Role>(user.RoleName.ToString());
+                user.Role = Enum.Parse<Role>(user.Role.ToString());
             }
             return user;
         }
@@ -58,16 +58,17 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
                 INSERT INTO users (name, surname, email, password, phone_nr, age, address, role_name) 
                 VALUES (@Name, @Surname, @Email, @Password, @PhoneNr, @Age, @Address, @RoleName) 
                 RETURNING id";
-            var createdId = await connection.ExecuteScalarAsync<int>(sql, new
+            var createdId = await connection.ExecuteScalarAsync<Guid>(sql, new
             {
-                user.Name,
-                user.Surname,
-                user.Email,
+                user.Username,
                 user.Password,
-                user.PhoneNr,
+                user.FirstName,
+                user.LastName,
                 user.Age,
+                user.Email,
+                user.PhoneNr,
                 user.Address,
-                RoleName = user.RoleName.ToString() // Convert enum to string
+                Role = user.Role.ToString() // Convert enum to string
             });
             user.Id = createdId;
             return user;
@@ -83,20 +84,20 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
                 RETURNING id, name, surname, email, password, phone_nr AS PhoneNr, age, address, role_name AS RoleName";
             var updatedUser = await connection.QueryFirstOrDefaultAsync<User>(sql, new
             {
-                user.Id,
-                user.Name,
-                user.Surname,
-                user.Email,
+                user.Username,
                 user.Password,
-                user.PhoneNr,
+                user.FirstName,
+                user.LastName,
                 user.Age,
+                user.Email,
+                user.PhoneNr,
                 user.Address,
-                RoleName = user.RoleName.ToString() // Convert enum to string
+                Role = user.Role.ToString()  // Convert enum to string
             }) ?? throw new InvalidOperationException("User update failed.");
             return updatedUser;
         }
 
-        public async Task DeleteUserAsync(int id)
+        public async Task DeleteUserAsync(Guid id)
         {
             await using var connection = new NpgsqlConnection(_connectionString);
             await connection.ExecuteAsync("DELETE FROM users WHERE id = @Id", new { Id = id });
