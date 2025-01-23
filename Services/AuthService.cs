@@ -2,10 +2,8 @@
 using Dapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using Npgsql;
 using SuperFarm.Application.DTOs;
 using SuperFarm.Domain.Entities;
-using SuperFarm.Domain.Enums;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -69,7 +67,7 @@ namespace SuperFarm.Services
                 Email = request.Email,
                 PhoneNr = request.PhoneNr,
                 Address = request.Address,
-                Role = request.Role
+                Role = Domain.Enums.Role.Customer
             };
 
             user.Password = new PasswordHasher<User>().HashPassword(user, request.Password);

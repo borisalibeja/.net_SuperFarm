@@ -15,8 +15,7 @@ public static class UserMapper
             Email = userCreateDto.Email,
             PhoneNr = userCreateDto.PhoneNr,
             Age = userCreateDto.Age,
-            Address = userCreateDto.Address,
-            Role = userCreateDto.Role
+            Address = userCreateDto.Address
         };
     }
 

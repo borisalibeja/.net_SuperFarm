@@ -1,5 +1,6 @@
 
 
+using SuperFarm.Application.DTOs;
 using SuperFarm.Domain.Entities;
 
 namespace SuperFarm.Infrastructure.Repositories.UserRepositories;

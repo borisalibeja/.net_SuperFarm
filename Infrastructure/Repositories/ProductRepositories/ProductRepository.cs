@@ -1,51 +1,39 @@
+using System.Data;
 using Dapper;
-using Npgsql;
 using SuperFarm.Domain.Entities;
 
 namespace SuperFarm.Infrastructure.Repositories.ProductRepositories;
 
-public class ProductRepository : IProductRepositories
+public class ProductRepository(IDbConnection dbConnection) : IProductRepositories
 {
-    private readonly string _connectionString = "";
-    private readonly IConfiguration _config;
-
-    public ProductRepository(IConfiguration config)
-    {
-        _config = config;
-        _connectionString = _config.GetConnectionString("DefaultConnection") ?? string.Empty;
-    }
+    private readonly IDbConnection _dbConnection = dbConnection;
 
     public async Task<IEnumerable<Product>> GetAllProductAsync()
     {
-        using var connection = new NpgsqlConnection(_connectionString);
-        return await connection.QueryAsync<Product>("SELECT * FROM farm");
+        return await _dbConnection.QueryAsync<Product>("SELECT * FROM farm");
     }
 
     public async Task<Product?> GetProductByIdAsync(Guid id)
     {
-        using var connection = new NpgsqlConnection(_connectionString);
-        return await connection.QueryFirstOrDefaultAsync<Product>("SELECT * FROM product where user_id = @UserId", new { id });
+        return await _dbConnection.QueryFirstOrDefaultAsync<Product>("SELECT * FROM product where user_id = @UserId", new { id });
     }
 
     public async Task<Product> CreateFarmAsync(Product product)
     {
-        using var connection = new NpgsqlConnection(_connectionString);
-        var createdId = await connection.ExecuteScalarAsync<int>("INSERT INTO product (farm_name, farm_address, creation_date) VALUES (@FarmName, @FarmAddress, @CreationDate);select lastval();", product);
+        var createdId = await _dbConnection.ExecuteScalarAsync<int>("INSERT INTO product (farm_name, farm_address, creation_date) VALUES (@FarmName, @FarmAddress, @CreationDate);select lastval();", product);
 
         return product;
     }
 
     public async Task<Product> UpdateProductAsync(Product product)
     {
-        using var connection = new NpgsqlConnection(_connectionString);
-        await connection.ExecuteAsync("UPDATE product SET farm_name = @FarmName, farm_address = @FarmAddress WHERE user_id = @UserId", product);
+        await _dbConnection.ExecuteAsync("UPDATE product SET farm_name = @FarmName, farm_address = @FarmAddress WHERE user_id = @UserId", product);
         return product;
     }
 
     public async Task DeleteProductAsync(Guid id)
     {
-        using var connection = new NpgsqlConnection(_connectionString);
-        await connection.ExecuteAsync("DELETE FROM product WHERE user_id = @UserId", new { id });
+        await _dbConnection.ExecuteAsync("DELETE FROM product WHERE user_id = @UserId", new { id });
     }
 
     public Task<Product> CreateProductAsync(Product product)

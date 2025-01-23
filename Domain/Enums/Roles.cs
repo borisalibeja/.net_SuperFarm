@@ -1,5 +1,6 @@
-namespace SuperFarm.Domain.Enums;
 
+
+namespace SuperFarm.Domain.Enums;
 
 public enum Role
 {

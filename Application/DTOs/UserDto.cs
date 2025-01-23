@@ -17,8 +17,6 @@ namespace SuperFarm.Application.DTOs
         public int PhoneNr { get; set; }
         public string? Address { get; set; }
 
-        [JsonConverter(typeof(StringEnumConverter))]
-        public Role Role { get; set; }
     }
 
     public class UserUpdateDto

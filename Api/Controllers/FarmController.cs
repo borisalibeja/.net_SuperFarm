@@ -18,11 +18,11 @@ namespace SuperFarm.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateFarm(FarmCreateDto farmCreateDto)
+        public async Task<IActionResult> CreateFarm(FarmCreateDto request)
         {
             try
             {
-                var farm = await _farmRepository.CreateFarmAsync(farmCreateDto.ToFarm());
+                var farm = await _farmRepository.CreateFarmAsync(request);
 
                 return CreatedAtRoute(nameof(GetFarmByIdAsync), new { id = farm.ToFarmDisplayDto() }, farm.ToFarmDisplayDto());
             }
@@ -51,11 +51,11 @@ namespace SuperFarm.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateFarmAsync(Guid id, FarmUpdateDto farmUpdateDto)
+        public async Task<IActionResult> UpdateFarmAsync(Guid id, FarmUpdateDto request)
         {
             try
             {
-                if (id != farmUpdateDto.UserId)
+                if (id != request.UserId)
                 {
                     return BadRequest("Ids mismatch");
                 }
@@ -64,7 +64,7 @@ namespace SuperFarm.Controllers
                 {
                     return NotFound("Farm with id " + id + " not found");
                 }
-                await _farmRepository.UpdateFarmAsync(farmUpdateDto.ToFarm());
+                await _farmRepository.UpdateFarmAsync(request);
                 return NoContent();
             }
             catch (Exception ex)

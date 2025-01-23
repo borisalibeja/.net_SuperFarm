@@ -13,8 +13,7 @@ namespace SuperFarm.Api.Controllers
         private readonly IUserRepositories _userRepository = userRepository;
 
 
-        [HttpGet("{id}", Name = "GetUserByIdAsync")]
-        [Authorize(Policy = "AdminPolicy")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetUserByIdAsync(Guid id)
         {
             try
@@ -33,7 +32,6 @@ namespace SuperFarm.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Policy = "CustomerPolicy")]
         public async Task<IActionResult> UpdateUserAsync(Guid id, UserUpdateDto userUpdateDto)
         {
             try
@@ -59,7 +57,6 @@ namespace SuperFarm.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "FarmerPolicy")]
         public async Task<IActionResult> DeleteUserAsync(Guid id)
         {
             try
@@ -80,7 +77,6 @@ namespace SuperFarm.Api.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "CustomerPolicy")]
         public async Task<IActionResult> GetAllUsers()
         {
             try

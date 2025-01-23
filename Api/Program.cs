@@ -3,23 +3,31 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using SuperFarm.Infrastructure.Repositories.FarmRepositories;
 using SuperFarm.Infrastructure.Repositories.UserRepositories;
+using SuperFarm.Infrastructure.Repositories.ProductRepositories;
 using Scalar.AspNetCore;
 using SuperFarm.Services;
 using System.Data;
 using Npgsql;
+using Newtonsoft.Json.Converters;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+        .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.Converters.Add(new StringEnumConverter());  //converts enums to strings
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IFarmRepositories, FarmRepository>();
 builder.Services.AddScoped<IUserRepositories, UserRepository>();
+builder.Services.AddScoped<IProductRepositories, ProductRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddSingleton<UserContextService>();
 
 builder.Services.AddScoped<IDbConnection>(sp => new NpgsqlConnection(
     builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -47,8 +55,8 @@ builder.Services.AddAuthorization(options =>
 {
     // Add policy for Admin role
     options.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("CustomerPolicy", policy => policy.RequireRole("Customer"));
-    options.AddPolicy("FarmerPolicy", policy => policy.RequireRole("Farmer"));
+    options.AddPolicy("CustomerPolicy", policy => policy.RequireRole("Customer", "Admin", "Farmer"));
+    options.AddPolicy("FarmerPolicy", policy => policy.RequireRole("Farmer", "Admin"));
 });
 
 var app = builder.Build();
