@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 using SuperFarm.Application.DTOs;
 using SuperFarm.Domain.Entities;
+using SuperFarm.Domain.Enums;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -87,8 +88,8 @@ namespace SuperFarm.Services
                 user.Email,
                 user.PhoneNr,
                 user.Address,
-                user.Role
-            });
+                Role = user.Role.ToString()
+            }).ConfigureAwait(false);
 
             return user;
         }

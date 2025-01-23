@@ -8,7 +8,6 @@ public static class UserMapper
     {
         return new User
         {
-            Id = userCreateDto.Id,
             Username = userCreateDto.Username,
             Password = userCreateDto.Password,
             FirstName = userCreateDto.FirstName,

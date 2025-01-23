@@ -51,28 +51,7 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
             }
             return user;
         }
-        public async Task<User> CreateUserAsync(User user)
-        {
-            await using var connection = new NpgsqlConnection(_connectionString);
-            var sql = @"
-                INSERT INTO users (name, surname, email, password, phone_nr, age, address, role_name) 
-                VALUES (@Name, @Surname, @Email, @Password, @PhoneNr, @Age, @Address, @RoleName) 
-                RETURNING id";
-            var createdId = await connection.ExecuteScalarAsync<Guid>(sql, new
-            {
-                user.Username,
-                user.Password,
-                user.FirstName,
-                user.LastName,
-                user.Age,
-                user.Email,
-                user.PhoneNr,
-                user.Address,
-                Role = user.Role.ToString() // Convert enum to string
-            });
-            user.Id = createdId;
-            return user;
-        }
+
 
         public async Task<User> UpdateUserAsync(User user)
         {
@@ -100,7 +79,7 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
         public async Task DeleteUserAsync(Guid id)
         {
             await using var connection = new NpgsqlConnection(_connectionString);
-            await connection.ExecuteAsync("DELETE FROM users WHERE id = @Id", new { Id = id });
+            await connection.ExecuteAsync("DELETE FROM users WHERE user_id = @Id", new { Id = id });
         }
 
     }

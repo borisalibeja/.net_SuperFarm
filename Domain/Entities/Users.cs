@@ -1,4 +1,6 @@
 using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using SuperFarm.Domain.Enums;
 
 namespace SuperFarm.Domain.Entities;
@@ -14,7 +16,10 @@ public class User
     public string Email { get; set; } = string.Empty;
     public int PhoneNr { get; set; }
     public string? Address { get; set; }
+
+    [JsonConverter(typeof(StringEnumConverter))]
     public Role Role { get; set; }
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiryTime { get; set; }
+
 }
