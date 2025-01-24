@@ -1,9 +1,8 @@
 using System.Data;
 using Dapper;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Npgsql;
 using SuperFarm.Application.DTOs;
 using SuperFarm.Domain.Entities;
+using SuperFarm.Domain.Enums;
 using SuperFarm.Services;
 
 namespace SuperFarm.Infrastructure.Repositories.FarmRepositories;
@@ -15,12 +14,14 @@ public class FarmRepository(IDbConnection dbConnection, UserContextService userC
 
     public async Task<IEnumerable<Farm>> GetAllFarmAsync()
     {
-        return await _dbConnection.QueryAsync<Farm>("SELECT * FROM farms");
+        return await _dbConnection.QueryAsync<Farm>("SELECT farm_id as FarmId, user_id as UserId, farm_name as FarmName," +
+        " farm_address as FarmAddress, creation_date as CreationDate FROM farms");
     }
 
-    public async Task<Farm?> GetFarmByIdAsync(Guid id)
+    public async Task<Farm?> GetFarmByIdAsync(Guid FarmId)
     {
-        return await _dbConnection.QueryFirstOrDefaultAsync<Farm>("SELECT * FROM farms where user_id = @UserId", new { id });
+        return await _dbConnection.QueryFirstOrDefaultAsync<Farm>("SELECT farm_id as FarmId, user_id as UserId, farm_name as FarmName," +
+        " farm_address as FarmAddress, creation_date as CreationDate FROM farms WHERE farm_id = @FarmId", new { FarmId });
     }
 
     public async Task<Farm> CreateFarmAsync(FarmCreateDto request)
@@ -117,6 +118,64 @@ public class FarmRepository(IDbConnection dbConnection, UserContextService userC
 
     public async Task DeleteFarmAsync(Guid id)
     {
-        await _dbConnection.ExecuteAsync("DELETE FROM farms WHERE user_id = @UserId", new { id });
+        var userId = _userContextService.GetUserId();
+        var userRole = _userContextService.GetUserRole();
+
+        // Ensure the connection is opened before use
+        if (_dbConnection.State == ConnectionState.Closed)
+        {
+            _dbConnection.Open();
+        }
+
+        using (var transaction = _dbConnection.BeginTransaction())
+        {
+            try
+            {
+                var user_id = await _dbConnection.QueryFirstOrDefaultAsync<Guid>(
+                    "SELECT user_id FROM farms WHERE farm_id = @id",
+                    new { id },
+                    transaction);
+                // Retrieve the farm and its owner
+                var farm = await _dbConnection.QueryFirstOrDefaultAsync<Farm>(
+                    "SELECT * FROM farms WHERE farm_id = @id",
+                    new { id },
+                    transaction);
+
+                if (farm == null)
+                {
+                    throw new InvalidOperationException("Farm not found.");
+                }
+
+                if (userRole == "Admin" || (userRole == "Farmer" && farm.UserId == userId))
+                {
+                    // Delete the farm
+                    await _dbConnection.ExecuteAsync("DELETE FROM farms WHERE farm_id = @id",
+                        new { id }, transaction);
+
+                    // Update the role of the farm owner to "Customer"
+                    var updateRoleSql = "UPDATE users SET role = @Role WHERE user_id = @UserId";
+                    await _dbConnection.ExecuteAsync(updateRoleSql, new
+                    {
+                        Role = "Customer",
+                        UserId = user_id
+                    }, transaction);
+
+                    transaction.Commit();
+                }
+                else
+                {
+                    throw new UnauthorizedAccessException("Only users with the role 'Admin' or 'Farmer' who own the farm can delete it.");
+                }
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+            finally
+            {
+                _dbConnection.Close();
+            }
+        }
     }
 }

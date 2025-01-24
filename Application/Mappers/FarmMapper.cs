@@ -10,8 +10,6 @@ public static class FarmMapper
     {
         return new Farm
         {
-            FarmId = farmCreateDto.FarmId,
-            UserId = farmCreateDto.UserId,
             FarmName = farmCreateDto.FarmName,
             FarmAddress = farmCreateDto.FarmAddress,
             CreationDate = farmCreateDto.CreationDate

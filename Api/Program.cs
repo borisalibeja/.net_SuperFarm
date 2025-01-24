@@ -10,7 +10,6 @@ using System.Data;
 using Npgsql;
 using Newtonsoft.Json.Converters;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -22,12 +21,15 @@ builder.Services.AddControllers()
     });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IFarmRepositories, FarmRepository>();
 builder.Services.AddScoped<IUserRepositories, UserRepository>();
 builder.Services.AddScoped<IProductRepositories, ProductRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSingleton<UserContextService>();
+
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IDbConnection>(sp => new NpgsqlConnection(
     builder.Configuration.GetConnectionString("DefaultConnection")));

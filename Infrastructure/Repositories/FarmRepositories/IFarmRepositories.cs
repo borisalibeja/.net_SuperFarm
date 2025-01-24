@@ -8,7 +8,7 @@ public interface IFarmRepositories
 {
 
     Task<IEnumerable<Farm>> GetAllFarmAsync();
-    Task<Farm?> GetFarmByIdAsync(Guid id);
+    Task<Farm?> GetFarmByIdAsync(Guid FarmId);
     Task<Farm> CreateFarmAsync(FarmCreateDto request);
     Task<Farm> UpdateFarmAsync(FarmUpdateDto request);
     Task DeleteFarmAsync(Guid id);

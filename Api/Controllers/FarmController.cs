@@ -24,7 +24,7 @@ namespace SuperFarm.Controllers
             {
                 var farm = await _farmRepository.CreateFarmAsync(request);
 
-                return CreatedAtRoute(nameof(GetFarmByIdAsync), new { id = farm.ToFarmDisplayDto() }, farm.ToFarmDisplayDto());
+                return CreatedAtRoute(nameof(GetFarmByIdAsync), new { FarmId = farm.ToFarmDisplayDto() }, farm.ToFarmDisplayDto());
             }
             catch (Exception ex)
             {
@@ -32,15 +32,15 @@ namespace SuperFarm.Controllers
             }
         }
 
-        [HttpGet("{id}", Name = "GetFarmByIdAsync")]
-        public async Task<IActionResult> GetFarmByIdAsync(Guid id)
+        [HttpGet("{FarmId}", Name = "GetFarmByIdAsync")]
+        public async Task<IActionResult> GetFarmByIdAsync(Guid FarmId)
         {
             try
             {
-                var farm = await _farmRepository.GetFarmByIdAsync(id);
+                var farm = await _farmRepository.GetFarmByIdAsync(FarmId);
                 if (farm == null)
                 {
-                    return NotFound("Farm with id " + id + " not found");
+                    return NotFound("Farm with id " + FarmId + " not found");
                 }
                 return Ok(farm);
             }
