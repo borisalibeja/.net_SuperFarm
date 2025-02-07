@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using SuperFarm.Application.DTOs;
 using SuperFarm.Application.Mappers;
+using SuperFarm.Domain.Entities;
 using SuperFarm.Infrastructure.Repositories.FarmRepositories;
+using SuperFarm.Services;
 
 
 namespace SuperFarm.Controllers
@@ -11,10 +13,12 @@ namespace SuperFarm.Controllers
     public class FarmController : ControllerBase
     {
         private readonly IFarmRepositories _farmRepository;
+        private readonly UserContextService _userContextService;
 
-        public FarmController(IFarmRepositories farmRepository)
+        public FarmController(IFarmRepositories farmRepository, UserContextService userContextService)
         {
             _farmRepository = farmRepository;
+            _userContextService = userContextService;
         }
 
         [HttpPost]
@@ -50,26 +54,29 @@ namespace SuperFarm.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateFarmAsync(Guid id, FarmUpdateDto request)
+        [HttpPut("{FarmId?}")]
+        public async Task<IActionResult> UpdateFarmAsync(FarmUpdateDto request, Guid? FarmId)
         {
+            var userId = _userContextService.GetUserId();
+            var userRole = _userContextService.GetUserRole();
+
             try
             {
-                if (id != request.UserId)
-                {
-                    return BadRequest("Ids mismatch");
-                }
-                var existingFarm = await _farmRepository.GetFarmByIdAsync(id);
-                if (existingFarm == null)
-                {
-                    return NotFound("Farm with id " + id + " not found");
-                }
-                await _farmRepository.UpdateFarmAsync(request);
-                return NoContent();
+                request.FarmId = FarmId ?? request.FarmId;
+                var updatedFarm = await _farmRepository.UpdateFarmAsync(request, FarmId);
+                return Ok(updatedFarm);
             }
-            catch (Exception ex)
+            catch (UnauthorizedAccessException ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                return Forbid(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
             }
         }
 

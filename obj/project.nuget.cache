@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "fiGU74Ymi8A=",
+  "dgSpecHash": "nrtrm0wSL9A=",
   "success": true,
-  "projectFilePath": "C:\\Users\\emerg\\OneDrive\\Desktop\\code\\dotnet_SuperFarm\\Superfarm\\SuperFarm.csproj",
+  "projectFilePath": "C:\\Users\\emerg\\OneDrive\\Desktop\\code\\dotnet_SuperFarm\\superfarm\\SuperFarm.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\emerg\\.nuget\\packages\\dapper\\2.1.35\\dapper.2.1.35.nupkg.sha512",
     "C:\\Users\\emerg\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\9.0.1\\microsoft.aspnetcore.authentication.jwtbearer.9.0.1.nupkg.sha512",

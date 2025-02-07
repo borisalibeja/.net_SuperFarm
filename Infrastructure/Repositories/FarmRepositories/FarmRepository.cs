@@ -2,7 +2,6 @@ using System.Data;
 using Dapper;
 using SuperFarm.Application.DTOs;
 using SuperFarm.Domain.Entities;
-using SuperFarm.Domain.Enums;
 using SuperFarm.Services;
 
 namespace SuperFarm.Infrastructure.Repositories.FarmRepositories;
@@ -16,6 +15,7 @@ public class FarmRepository(IDbConnection dbConnection, UserContextService userC
     {
         return await _dbConnection.QueryAsync<Farm>("SELECT farm_id as FarmId, user_id as UserId, farm_name as FarmName," +
         " farm_address as FarmAddress, creation_date as CreationDate FROM farms");
+
     }
 
     public async Task<Farm?> GetFarmByIdAsync(Guid FarmId)
@@ -76,43 +76,65 @@ public class FarmRepository(IDbConnection dbConnection, UserContextService userC
 
     }
 
-    public async Task<Farm> UpdateFarmAsync(FarmUpdateDto request)
+    public async Task<Farm> GetFarmByUserIdAsync()
     {
-        // Extract user information from the HTTP context
+        var userId = _userContextService.GetUserId();
+        var sql = "SELECT * FROM farms WHERE user_id = @userId";
+        return (await _dbConnection.QueryFirstOrDefaultAsync<Farm>(sql, new { UserId = userId }).ConfigureAwait(false))!;
+    }
+    public async Task<Farm> UpdateFarmAsync(FarmUpdateDto request, Guid? FarmId)
+    {
         var userId = _userContextService.GetUserId();
         var userRole = _userContextService.GetUserRole();
-
-        // Check if the user's role is "Farmer"
         if (userRole == "Farmer")
         {
-            throw new UnauthorizedAccessException("Only users with the role 'Farmer' can update a farm.");
+            // Scenario 1: User is a Farmer
+            var farm = await GetFarmByUserIdAsync();
+            if (farm == null)
+            {
+                throw new UnauthorizedAccessException("You do not have permission to update this farm.");
+            }
+            var sql = "UPDATE farms SET farm_name = @FarmName, farm_address = @FarmAddress WHERE farm_id = (SELECT farm_id FROM farms WHERE user_id = @UserId)";
+            await _dbConnection.ExecuteAsync(sql, new
+            {
+                UserId = userId, // Use the farm ID from the retrieved farm object
+                request.FarmName,
+                request.FarmAddress
+            }).ConfigureAwait(false);
+        }
+        else
+        {
+            // Scenario 2: User is not a Farmer
+            if (request.FarmId == Guid.Empty)
+            {
+                throw new ArgumentException("Farm ID is required.");
+            }
+            var farm = await GetFarmByIdAsync(request.FarmId);
+            if (farm == null)
+            {
+                throw new InvalidOperationException("Farm not found.");
+            }
+            else
+            {
+                var sql = "UPDATE farms SET farm_name = @FarmName, farm_address = @FarmAddress WHERE farm_id = @FarmId";
+                await _dbConnection.ExecuteAsync(sql, new
+                {
+                    request.FarmId,
+                    request.FarmName,
+                    request.FarmAddress
+                }).ConfigureAwait(false);
+            }
         }
 
-        // Check if the farm belongs to the current user
-        var existingFarm = await _dbConnection.QueryFirstOrDefaultAsync<Farm>(
-            "SELECT * FROM farms WHERE farm_id = @FarmId AND user_id = @UserId",
-            new { FarmId = request.FarmId, UserId = userId }).ConfigureAwait(false);
-
-        if (existingFarm == null)
+        var updatedFarmSql = "SELECT farm_id as FarmId, user_id as UserId, farm_name as FarmName, farm_address as FarmAddress, creation_date as CreationDate" +
+        " FROM farms WHERE farm_id = @FarmId OR user_id = @UserId";
+        var updatedFarm = await _dbConnection.QueryFirstOrDefaultAsync<Farm>(updatedFarmSql, new { request.FarmId, UserId = userId }).ConfigureAwait(false);
+        if (updatedFarm == null)
         {
-            throw new InvalidOperationException("Farm not found or does not belong to the user."); // Farm not found or does not belong to the user
+            throw new InvalidOperationException("Updated farm not found.");
         }
+        return updatedFarm;
 
-        // Update the farm details
-        var sql = "UPDATE farms SET farm_name = @FarmName, farm_address = @FarmAddress WHERE farm_id = @FarmId";
-        await _dbConnection.ExecuteAsync(sql, new
-        {
-            request.FarmId,
-            request.FarmName,
-            request.FarmAddress
-        }).ConfigureAwait(false);
-
-        // Return the updated farm object
-        var updatedFarm = await _dbConnection.QueryFirstOrDefaultAsync<Farm>(
-            "SELECT * FROM farms WHERE farm_id = @FarmId",
-            new { request.FarmId }).ConfigureAwait(false);
-
-        return updatedFarm ?? throw new InvalidOperationException("Farm update failed.");
 
     }
 
