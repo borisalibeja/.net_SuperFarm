@@ -138,66 +138,48 @@ public class FarmRepository(IDbConnection dbConnection, UserContextService userC
 
     }
 
-    public async Task DeleteFarmAsync(Guid id)
+    public async Task DeleteFarmAsync(Guid? FarmId)
     {
         var userId = _userContextService.GetUserId();
         var userRole = _userContextService.GetUserRole();
 
-        // Ensure the connection is opened before use
-        if (_dbConnection.State == ConnectionState.Closed)
+        if (userRole == "Farmer")
         {
-            _dbConnection.Open();
+            var farm = await GetFarmByUserIdAsync();
+            if (farm == null)
+            {
+                throw new UnauthorizedAccessException("You do not have permission to delete this farm.");
+            }
+            var sql = "DELETE FROM farms WHERE farm_id = (SELECT farm_id FROM farms WHERE user_id = @UserId)";
+            await _dbConnection.ExecuteAsync(sql, new { UserId = userId }).ConfigureAwait(false);
+            var updateRoleSql = "UPDATE users SET role = @Role WHERE user_id = @UserId";
+            await _dbConnection.ExecuteAsync(updateRoleSql, new
+            {
+                Role = "Customer",
+                UserId = userId
+            });
         }
-
-        using (var transaction = _dbConnection.BeginTransaction())
+        else
         {
-            try
+            if (FarmId == null || FarmId == Guid.Empty)
             {
-                var user_id = await _dbConnection.QueryFirstOrDefaultAsync<Guid>(
-                    "SELECT user_id FROM farms WHERE farm_id = @id",
-                    new { id },
-                    transaction);
-                // Retrieve the farm and its owner
-                var farm = await _dbConnection.QueryFirstOrDefaultAsync<Farm>(
-                    "SELECT * FROM farms WHERE farm_id = @id",
-                    new { id },
-                    transaction);
-
-                if (farm == null)
-                {
-                    throw new InvalidOperationException("Farm not found.");
-                }
-
-                if (userRole == "Admin" || (userRole == "Farmer" && farm.UserId == userId))
-                {
-                    // Delete the farm
-                    await _dbConnection.ExecuteAsync("DELETE FROM farms WHERE farm_id = @id",
-                        new { id }, transaction);
-
-                    // Update the role of the farm owner to "Customer"
-                    var updateRoleSql = "UPDATE users SET role = @Role WHERE user_id = @UserId";
-                    await _dbConnection.ExecuteAsync(updateRoleSql, new
-                    {
-                        Role = "Customer",
-                        UserId = user_id
-                    }, transaction);
-
-                    transaction.Commit();
-                }
-                else
-                {
-                    throw new UnauthorizedAccessException("Only users with the role 'Admin' or 'Farmer' who own the farm can delete it.");
-                }
+                throw new ArgumentException("Farm ID is required.");
             }
-            catch
+            var farm = await GetFarmByIdAsync(FarmId.Value);
+            if (farm == null)
             {
-                transaction.Rollback();
-                throw;
+                throw new InvalidOperationException("Farm not found.");
             }
-            finally
+            var updateRoleSql = "UPDATE users SET role = @Role WHERE user_id = (SELECT user_id FROM farms WHERE farm_id = @farmId)";
+            await _dbConnection.ExecuteAsync(updateRoleSql, new
             {
-                _dbConnection.Close();
-            }
+                Role = "Customer",
+                farmId = FarmId
+            }).ConfigureAwait(false);
+
+            var sql = "DELETE FROM farms WHERE farm_id = @farmId";
+            await _dbConnection.ExecuteAsync(sql, new { farmId = FarmId }).ConfigureAwait(false);
+
         }
     }
 }

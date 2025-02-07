@@ -1,3 +1,5 @@
+using System.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SuperFarm.Application.DTOs;
 using SuperFarm.Application.Mappers;
@@ -54,11 +56,11 @@ namespace SuperFarm.Controllers
             }
         }
 
+
+        [Authorize(Policy = "FarmerPolicy")]
         [HttpPut("{FarmId?}")]
         public async Task<IActionResult> UpdateFarmAsync(FarmUpdateDto request, Guid? FarmId)
         {
-            var userId = _userContextService.GetUserId();
-            var userRole = _userContextService.GetUserRole();
 
             try
             {
@@ -80,23 +82,14 @@ namespace SuperFarm.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFarmAsync(Guid id)
+        [Authorize(Policy = "FarmerPolicy")]
+        [HttpDelete("{FarmId?}")]
+        public async Task<IActionResult> DeleteFarmAsync(Guid? FarmId)
         {
-            try
-            {
-                var existingFarm = await _farmRepository.GetFarmByIdAsync(id);
-                if (existingFarm == null)
-                {
-                    return NotFound("Farm with id " + id + " not found");
-                }
-                await _farmRepository.DeleteFarmAsync(id);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
+
+            await _farmRepository.DeleteFarmAsync(FarmId);
+            return NoContent();
+
         }
 
         [HttpGet]

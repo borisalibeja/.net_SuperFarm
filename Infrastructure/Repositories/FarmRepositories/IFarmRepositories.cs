@@ -12,6 +12,6 @@ public interface IFarmRepositories
     Task<Farm> GetFarmByUserIdAsync();
     Task<Farm> CreateFarmAsync(FarmCreateDto request);
     Task<Farm> UpdateFarmAsync(FarmUpdateDto request, Guid? FarmId);
-    Task DeleteFarmAsync(Guid id);
+    Task DeleteFarmAsync(Guid? FarmId);
 }
 
