@@ -9,20 +9,52 @@ using SuperFarm.Services;
 using System.Data;
 using Npgsql;
 using Newtonsoft.Json.Converters;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers()
-        .AddNewtonsoftJson(options =>
+    .AddNewtonsoftJson(options =>
     {
-        options.SerializerSettings.Converters.Add(new StringEnumConverter());  //converts enums to strings
+        options.SerializerSettings.Converters.Add(new StringEnumConverter());  // Converts enums to strings
     });
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
+
+    // Define the security scheme for JWT
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    // Require the token in the Swagger UI
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 builder.Services.AddOpenApi();
+
 builder.Services.AddScoped<IFarmRepositories, FarmRepository>();
 builder.Services.AddScoped<IUserRepositories, UserRepository>();
 builder.Services.AddScoped<IProductRepositories, ProductRepository>();
@@ -34,28 +66,32 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IDbConnection>(sp => new NpgsqlConnection(
     builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidateAudience = true,
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            ValidateLifetime = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!)),
-            ValidateIssuerSigningKey = true
-        };
-    });
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        ValidateLifetime = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!)),
+        ValidateIssuerSigningKey = true
+    };
+});
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
 builder.Services.AddAuthorization(options =>
 {
-    // Add policy for Admin role
+    // Add policies for different roles
     options.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
     options.AddPolicy("CustomerPolicy", policy => policy.RequireRole("Customer", "Admin", "Farmer"));
     options.AddPolicy("FarmerPolicy", policy => policy.RequireRole("Farmer", "Admin"));
@@ -74,7 +110,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
