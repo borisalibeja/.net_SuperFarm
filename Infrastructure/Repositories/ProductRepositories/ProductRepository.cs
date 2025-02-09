@@ -61,40 +61,59 @@ public class ProductRepository(IDbConnection dbConnection, UserContextService us
 
     }
 
-    public async Task<Product> UpdateProductAsync(ProductUpdateDto request)
+    public async Task<Product> UpdateProductByIdAsync(Guid productId, ProductUpdateDto request)
     {
         var userId = _userContextService.GetUserId();
         var userRole = _userContextService.GetUserRole();
+        var farmIdOfUserLogged = await _dbConnection.QueryFirstOrDefaultAsync<Guid>(
+            "SELECT farm_id FROM farms WHERE user_id = @UserId",
+            new { UserId = userId }).ConfigureAwait(false);
+        var productIdOfUserLogged = await _dbConnection.QueryFirstOrDefaultAsync<Guid>(
+            "SELECT product_id FROM products WHERE farm_id = @FarmId",
+            new { FarmId = farmIdOfUserLogged }).ConfigureAwait(false);
 
-        if (userRole != "Farmer")
+        if (userRole == "Farmer")
         {
-            throw new UnauthorizedAccessException("Only users with the role 'Farmer' can update a product.");
-        }
+            if (productIdOfUserLogged != productId)
+            {
+                throw new UnauthorizedAccessException("You do not have permission to update this product.");
+            }
+            else if (productIdOfUserLogged == productId)
+            {
+                var sql = "UPDATE products SET product_name = @ProductName, product_price = @ProductPrice, product_category = @ProductCategory WHERE product_id = @ProductId";
+                await _dbConnection.ExecuteAsync(sql, new
+                {
+                    request.ProductName,
+                    request.ProductPrice,
+                    request.ProductCategory,
+                    ProductId = productId
+                }).ConfigureAwait(false);
+            }
 
-        var product = await GetProductByIdAsync(request.ProductId);
-        if (product == null)
+        }
+        else if (userRole == "Admin")
         {
-            throw new InvalidOperationException("Product not found.");
-        }
 
-        if (product.FarmId != userId)
+            var sql = "UPDATE products SET product_name = @ProductName, product_price = @ProductPrice, product_category = @ProductCategory WHERE product_id = @ProductId";
+            await _dbConnection.ExecuteAsync(sql, new
+            {
+                request.ProductName,
+                request.ProductPrice,
+                request.ProductCategory,
+                ProductId = productId
+            }).ConfigureAwait(false);
+
+        }
+        else
         {
             throw new UnauthorizedAccessException("You do not have permission to update this product.");
         }
-
-        var sql = @"UPDATE products
-                    SET product_name = @ProductName, product_price = @ProductPrice, product_category = @ProductCategory
-                    WHERE product_id = @ProductId";
-
-        await _dbConnection.ExecuteAsync(sql, new
+        var updatedProduct = await GetProductByIdAsync(productId);
+        if (updatedProduct == null)
         {
-            request.ProductId,
-            request.ProductName,
-            request.ProductPrice,
-            request.ProductCategory
-        });
-
-        return product;
+            throw new InvalidOperationException("Product not found after update.");
+        }
+        return updatedProduct;
     }
 
     public async Task DeleteProductAsync(Guid id)

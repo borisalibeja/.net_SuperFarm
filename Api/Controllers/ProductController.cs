@@ -52,25 +52,41 @@ namespace SuperFarm.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProductAsync(Guid id, ProductUpdateDto productUpdateDto)
+        [HttpPut("{productId}")]
+        public async Task<IActionResult> UpdateProductByIdAsync(Guid productId, ProductUpdateDto request)
         {
             try
             {
-                if (id != productUpdateDto.ProductId)
+                if (productId == Guid.Empty)
                 {
-                    return BadRequest("Ids mismatch");
+                    throw new ArgumentException("Product ID is required.");
                 }
-                var existingProduct = await _productRepository.GetProductByIdAsync(id);
-                if (existingProduct == null)
+
+                var product = await _productRepository.GetProductByIdAsync(productId);
+                if (product == null)
                 {
-                    return NotFound($"Product with id {id} not found");
+                    throw new InvalidOperationException("Product not found.");
                 }
-                return NoContent();
+
+                var updatedProduct = await _productRepository.UpdateProductByIdAsync(productId, request);
+                return Ok(updatedProduct);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Unauthorized(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
             }
         }
 

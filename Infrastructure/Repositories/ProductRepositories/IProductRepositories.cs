@@ -10,6 +10,6 @@ public interface IProductRepositories
     Task<IEnumerable<Product>> GetAllProductAsync();
     Task<Product?> GetProductByIdAsync(Guid id);
     Task<Product> CreateProductAsync(ProductCreateDto request);
-    Task<Product> UpdateProductAsync(ProductUpdateDto request);
+    Task<Product> UpdateProductByIdAsync(Guid productId, ProductUpdateDto request);
     Task DeleteProductAsync(Guid id);
 }
