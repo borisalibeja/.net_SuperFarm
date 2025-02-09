@@ -90,22 +90,41 @@ namespace SuperFarm.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProductAsync(Guid id)
+        [HttpDelete("{productId}")]
+        public async Task<IActionResult> DeleteProductAsync(Guid productId)
         {
             try
             {
-                var existingProduct = await _productRepository.GetProductByIdAsync(id);
-                if (existingProduct == null)
+                if (productId == Guid.Empty)
                 {
-                    return NotFound($"Product with id {id} not found");
+                    throw new ArgumentException("Product ID is required.");
                 }
-                await _productRepository.DeleteProductAsync(id);
-                return Ok("Product deleted successfully");
+
+                var product = await _productRepository.GetProductByIdAsync(productId);
+                if (product == null)
+                {
+                    throw new InvalidOperationException("Product not found.");
+                }
+
+                await _productRepository.DeleteProductByIdAsync(productId);
+                return Ok("Product deleted successfully.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Unauthorized(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
             }
         }
 

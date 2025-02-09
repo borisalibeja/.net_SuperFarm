@@ -1,5 +1,6 @@
 using System.Data;
 using Dapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 using SuperFarm.Application.DTOs;
 using SuperFarm.Domain.Entities;
 using SuperFarm.Services;
@@ -116,9 +117,40 @@ public class ProductRepository(IDbConnection dbConnection, UserContextService us
         return updatedProduct;
     }
 
-    public async Task DeleteProductAsync(Guid id)
+    public async Task DeleteProductByIdAsync(Guid productId)
     {
-        await _dbConnection.ExecuteAsync("DELETE FROM products WHERE product_id = @ProductId", new { ProductId = id });
+        var userId = _userContextService.GetUserId();
+        var userRole = _userContextService.GetUserRole();
+        var farmIdOfUserLogged = await _dbConnection.QueryFirstOrDefaultAsync<Guid>(
+            "SELECT farm_id FROM farms WHERE user_id = @UserId",
+            new { UserId = userId }).ConfigureAwait(false);
+        var productIdOfUserLogged = await _dbConnection.QueryFirstOrDefaultAsync<Guid>(
+            "SELECT product_id FROM products WHERE farm_id = @FarmId",
+            new { FarmId = farmIdOfUserLogged }).ConfigureAwait(false);
+
+        if (userRole == "Farmer")
+        {
+            if (productIdOfUserLogged != productId)
+            {
+                throw new UnauthorizedAccessException("You do not have permission to delete a product that you don not own.");
+            }
+            else if (productIdOfUserLogged == productId)
+            {
+                var sql = "DELETE products WHERE product_id = @ProductId";
+                await _dbConnection.ExecuteAsync(sql, new { ProductId = productId }).ConfigureAwait(false);
+            }
+
+        }
+        else if (userRole == "Admin")
+        {
+            var sql = "DELETE products WHERE product_id = @ProductId";
+            await _dbConnection.ExecuteAsync(sql, new { ProductId = productId }).ConfigureAwait(false);
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("You do not have permission to delete this product.");
+        }
+
     }
 
 }
