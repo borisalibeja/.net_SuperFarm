@@ -130,11 +130,30 @@ namespace SuperFarm.Controllers
 
         [HttpGet]
         public async Task<IActionResult> GetAllProducts()
+
         {
             try
             {
                 var products = await _productRepository.GetAllProductAsync();
                 return Ok(products.Select(p => p.ToProductDisplayDto()));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpGet("/{ProductName?}")]
+        public async Task<IActionResult> QueryProductByName(string? ProductName)
+        {
+            try
+            {
+                var product = await _productRepository.QueryProductByNameAsync(ProductName);
+                if (product == null)
+                {
+                    return NotFound($"Product with name {ProductName} not found");
+                }
+                return Ok(product);
             }
             catch (Exception ex)
             {

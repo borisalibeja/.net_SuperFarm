@@ -30,12 +30,12 @@ namespace SuperFarm.Api.Controllers
             }
         }
 
-        [HttpGet("/{name}")]
-        public async Task<IActionResult> QueryUserByName(string? name)
+        [HttpGet("query-by-name/{FullName}")]
+        public async Task<IActionResult> QueryUserByName(string? FullName)
         {
             try
             {
-                var user = await _userRepository.QueryUserByNameAsync(name);
+                var user = await _userRepository.QueryUserByNameAsync(FullName);
                 if (user == null)
                 {
                     return NotFound(new { message = "User not found." });

@@ -2,6 +2,7 @@ using System.Data;
 using Dapper;
 using SuperFarm.Application.DTOs;
 using SuperFarm.Domain.Entities;
+using SuperFarm.Domain.Enums;
 using SuperFarm.Services;
 
 namespace SuperFarm.Infrastructure.Repositories.ProductRepositories;
@@ -23,6 +24,16 @@ public class ProductRepository(IDbConnection dbConnection, UserContextService us
         " product_price as ProductPrice, product_category as ProductCategory FROM products where product_id = @id", new { id });
     }
 
+    public async Task<IEnumerable<ProductDisplayDto>> QueryProductByNameAsync(string? name)
+    {
+        var sql = "SELECT product_id as ProductId, farm_id as FarmId, product_name as ProductName, product_price as ProductPrice, product_category as ProductCategory FROM products WHERE product_name LIKE @Name";
+        var products = await _dbConnection.QueryAsync<ProductDisplayDto>(sql, new { Name = $"%{name}%" });
+        foreach (var product in products)
+        {
+            product.ProductCategory = Enum.Parse<ProductsCategory>(product.ProductCategory.ToString());
+        }
+        return products;
+    }
     public async Task<Product> CreateProductAsync(ProductCreateDto request)
     {
         var userId = _userContextService.GetUserId();
