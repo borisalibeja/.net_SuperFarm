@@ -9,7 +9,7 @@ public interface IUserRepositories
 {
     Task<IEnumerable<User>> GetAllUserAsync();
     Task<User?> GetUserByIdAsync(Guid id);
-
+    Task<IEnumerable<UserDisplayDto>> QueryUserByNameAsync(string? name);
     Task<User> UpdateUserAsync(UserUpdateDto request, Guid? UserId);
     Task DeleteUserAsync(Guid id);
 }

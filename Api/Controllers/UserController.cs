@@ -30,6 +30,25 @@ namespace SuperFarm.Api.Controllers
             }
         }
 
+        [HttpGet("/{name}")]
+        public async Task<IActionResult> QueryUserByName(string? name)
+        {
+            try
+            {
+                var user = await _userRepository.QueryUserByNameAsync(name);
+                if (user == null)
+                {
+                    return NotFound(new { message = "User not found." });
+                }
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+            }
+        }
+
         [HttpPut("{UserId?}")]
         public async Task<IActionResult> UpdateUserAsync(UserUpdateDto request, Guid? UserId)
         {

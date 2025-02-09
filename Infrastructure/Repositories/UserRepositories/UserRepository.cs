@@ -25,6 +25,17 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
             return users;
         }
 
+        public async Task<IEnumerable<UserDisplayDto>> QueryUserByNameAsync(string? name)
+        {
+            var sql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, first_name AS FirstName," +
+            "last_name AS LastName, age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role FROM Users WHERE first_name LIKE @Name OR last_name LIKE @Name";
+            var users = await _dbConnection.QueryAsync<UserDisplayDto>(sql, new { Name = $"%{name}%" });
+            foreach (var user in users)
+            {
+                user.Role = Enum.Parse<Role>(user.Role.ToString());
+            }
+            return users;
+        }
         public async Task<User?> GetUserByIdAsync(Guid id)
         {
             var sql = "SELECT user_id AS Id, user_name AS Username, password AS Password, first_name AS FirstName, last_name AS LastName," +
