@@ -15,6 +15,7 @@
           "Npgsql": "9.0.2",
           "Scalar.AspNetCore": "2.0.2",
           "Swashbuckle.AspNetCore": "7.2.0",
+          "Swashbuckle.AspNetCore.Annotations": "7.2.0",
           "System.IdentityModel.Tokens.Jwt": "8.3.1"
         },
         "runtime": {
@@ -201,6 +202,17 @@
           "Swashbuckle.AspNetCore.Swagger": "7.2.0",
           "Swashbuckle.AspNetCore.SwaggerGen": "7.2.0",
           "Swashbuckle.AspNetCore.SwaggerUI": "7.2.0"
+        }
+      },
+      "Swashbuckle.AspNetCore.Annotations/7.2.0": {
+        "dependencies": {
+          "Swashbuckle.AspNetCore.SwaggerGen": "7.2.0"
+        },
+        "runtime": {
+          "lib/net9.0/Swashbuckle.AspNetCore.Annotations.dll": {
+            "assemblyVersion": "7.2.0.0",
+            "fileVersion": "7.2.0.956"
+          }
         }
       },
       "Swashbuckle.AspNetCore.Swagger/7.2.0": {
@@ -399,6 +411,13 @@
       "sha512": "sha512-vJv19UpWm6OOgnS9QLDnWARNVasXUfj8SFvlG7UVALm4nBnfwRnEky7C0veSDqMUmBeMPC6Ec3d6G1ts/J04Uw==",
       "path": "swashbuckle.aspnetcore/7.2.0",
       "hashPath": "swashbuckle.aspnetcore.7.2.0.nupkg.sha512"
+    },
+    "Swashbuckle.AspNetCore.Annotations/7.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-lWJ1+Pfks8T16dC2H1v41ZYPFs9iPZD/aRkpkPWoXjQ3zPaaEImdIUTdY5RRtoZJj6NeaL6mywMBIiJ5R0gH/g==",
+      "path": "swashbuckle.aspnetcore.annotations/7.2.0",
+      "hashPath": "swashbuckle.aspnetcore.annotations.7.2.0.nupkg.sha512"
     },
     "Swashbuckle.AspNetCore.Swagger/7.2.0": {
       "type": "package",

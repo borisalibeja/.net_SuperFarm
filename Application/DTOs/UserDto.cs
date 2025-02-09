@@ -21,7 +21,7 @@ namespace SuperFarm.Application.DTOs
 
     public class UserUpdateDto
     {
-        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
         public string Username { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
@@ -37,7 +37,7 @@ namespace SuperFarm.Application.DTOs
 
     public class UserDisplayDto
     {
-        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
         public string Username { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;

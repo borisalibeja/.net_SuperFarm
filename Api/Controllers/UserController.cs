@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SuperFarm.Application.DTOs;
 using SuperFarm.Application.Mappers;
@@ -6,7 +5,7 @@ using SuperFarm.Infrastructure.Repositories.UserRepositories;
 
 namespace SuperFarm.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("/[controller]")]
     [ApiController]
     public class UserController(IUserRepositories userRepository) : ControllerBase
     {
@@ -31,28 +30,26 @@ namespace SuperFarm.Api.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUserAsync(Guid id, UserUpdateDto userUpdateDto)
+        [HttpPut("{UserId?}")]
+        public async Task<IActionResult> UpdateUserAsync(UserUpdateDto request, Guid? UserId)
         {
             try
             {
-                if (id != userUpdateDto.Id)
-                {
-                    return BadRequest("Ids mismatch");
-                }
-
-                var existingUser = await _userRepository.GetUserByIdAsync(id);
-                if (existingUser == null)
-                {
-                    return NotFound("User with id " + id + " not found");
-                }
-
-                await _userRepository.UpdateUserAsync(userUpdateDto.ToUser());
-                return NoContent();
+                request.UserId = UserId ?? request.UserId;
+                var updatedFarm = await _userRepository.UpdateUserAsync(request, UserId);
+                return Ok(updatedFarm);
             }
-            catch (Exception ex)
+            catch (UnauthorizedAccessException ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                return Forbid(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
             }
         }
 

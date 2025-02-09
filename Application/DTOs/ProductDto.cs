@@ -8,7 +8,7 @@ namespace SuperFarm.Application.DTOs
         public Guid ProductId { get; set; }
         public Guid FarmId { get; set; }
         public string? ProductName { get; set; }
-        public string? ProductPrice { get; set; }
+        public int? ProductPrice { get; set; }
         public ProductsCategory ProductCategory { get; set; }
     }
     public class ProductUpdateDto
@@ -16,7 +16,7 @@ namespace SuperFarm.Application.DTOs
         public Guid ProductId { get; set; }
         public Guid FarmId { get; set; }
         public string? ProductName { get; set; }
-        public string? ProductPrice { get; set; }
+        public int? ProductPrice { get; set; }
         public ProductsCategory ProductCategory { get; set; }
     }
     public class ProductDisplayDto
@@ -24,7 +24,7 @@ namespace SuperFarm.Application.DTOs
         public Guid ProductId { get; set; }
         public Guid FarmId { get; set; }
         public string? ProductName { get; set; }
-        public string? ProductPrice { get; set; }
+        public int? ProductPrice { get; set; }
         public ProductsCategory ProductCategory { get; set; }
     }
 }

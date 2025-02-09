@@ -1,16 +1,16 @@
-using System.Net;
+using System.Xml.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SuperFarm.Application.DTOs;
 using SuperFarm.Application.Mappers;
-using SuperFarm.Domain.Entities;
 using SuperFarm.Infrastructure.Repositories.FarmRepositories;
 using SuperFarm.Services;
+using Swashbuckle.AspNetCore.Annotations;
 
 
 namespace SuperFarm.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("/[controller]")]
     [ApiController]
     public class FarmController : ControllerBase
     {
@@ -83,8 +83,8 @@ namespace SuperFarm.Controllers
         }
 
         [Authorize(Policy = "FarmerPolicy")]
-        [HttpDelete("{FarmId?}")]
-        public async Task<IActionResult> DeleteFarmAsync(Guid? FarmId)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteFarmAsync([FromQuery] Guid? FarmId)
         {
 
             await _farmRepository.DeleteFarmAsync(FarmId);

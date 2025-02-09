@@ -50,3 +50,4 @@ C:\Users\emerg\OneDrive\Desktop\code\dotnet_SuperFarm\SuperFarm\bin\Debug\net9.0
 C:\Users\emerg\OneDrive\Desktop\code\dotnet_SuperFarm\SuperFarm\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\emerg\OneDrive\Desktop\code\dotnet_SuperFarm\SuperFarm\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
 C:\Users\emerg\OneDrive\Desktop\code\dotnet_SuperFarm\SuperFarm\bin\Debug\net9.0\Scalar.AspNetCore.dll
+C:\Users\emerg\OneDrive\Desktop\code\dotnet_SuperFarm\SuperFarm\bin\Debug\net9.0\Swashbuckle.AspNetCore.Annotations.dll

@@ -7,7 +7,7 @@ namespace SuperFarm.Domain.Entities;
 
 public class User
 {
-    public Guid Id { get; set; }
+    public Guid UserId { get; set; }
     public string Username { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;

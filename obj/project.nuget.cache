@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "Hm2zuE6OWew=",
+  "dgSpecHash": "+sM+FbPI0aI=",
   "success": true,
   "projectFilePath": "C:\\Users\\emerg\\OneDrive\\Desktop\\code\\dotnet_SuperFarm\\SuperFarm\\SuperFarm.csproj",
   "expectedPackageFiles": [
@@ -25,6 +25,7 @@
     "C:\\Users\\emerg\\.nuget\\packages\\npgsql\\9.0.2\\npgsql.9.0.2.nupkg.sha512",
     "C:\\Users\\emerg\\.nuget\\packages\\scalar.aspnetcore\\2.0.2\\scalar.aspnetcore.2.0.2.nupkg.sha512",
     "C:\\Users\\emerg\\.nuget\\packages\\swashbuckle.aspnetcore\\7.2.0\\swashbuckle.aspnetcore.7.2.0.nupkg.sha512",
+    "C:\\Users\\emerg\\.nuget\\packages\\swashbuckle.aspnetcore.annotations\\7.2.0\\swashbuckle.aspnetcore.annotations.7.2.0.nupkg.sha512",
     "C:\\Users\\emerg\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\7.2.0\\swashbuckle.aspnetcore.swagger.7.2.0.nupkg.sha512",
     "C:\\Users\\emerg\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\7.2.0\\swashbuckle.aspnetcore.swaggergen.7.2.0.nupkg.sha512",
     "C:\\Users\\emerg\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\7.2.0\\swashbuckle.aspnetcore.swaggerui.7.2.0.nupkg.sha512",

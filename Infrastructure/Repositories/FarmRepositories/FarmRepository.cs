@@ -90,7 +90,7 @@ public class FarmRepository(IDbConnection dbConnection, UserContextService userC
         {
             // Scenario 1: User is a Farmer
             var farm = await GetFarmByUserIdAsync();
-            if (farm == null)
+            if (farm == null || request.UserId != userId)
             {
                 throw new UnauthorizedAccessException("You do not have permission to update this farm.");
             }
@@ -102,7 +102,7 @@ public class FarmRepository(IDbConnection dbConnection, UserContextService userC
                 request.FarmAddress
             }).ConfigureAwait(false);
         }
-        else
+        else if (userRole == "Admin")
         {
             // Scenario 2: User is not a Farmer
             if (request.FarmId == Guid.Empty)

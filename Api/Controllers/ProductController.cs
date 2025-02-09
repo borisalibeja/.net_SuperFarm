@@ -6,7 +6,7 @@ using SuperFarm.Infrastructure.Repositories.ProductRepositories;
 
 namespace SuperFarm.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("/[controller]")]
     [ApiController]
     public class ProductController : ControllerBase
     {
@@ -18,29 +18,31 @@ namespace SuperFarm.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProduct(ProductCreateDto productCreateDto)
+        public async Task<IActionResult> CreateProduct(ProductCreateDto request)
         {
             try
             {
-                var product = await _productRepository.CreateProductAsync(productCreateDto.ToProduct());
+                var product = await _productRepository.CreateProductAsync(request);
+                var productDisplayDto = product.ToProductDisplayDto();
 
-                return CreatedAtRoute(nameof(GetProductByIdAsync), new { id = product.ProductId }, product.ToProductDisplayDto());
+                return CreatedAtRoute(nameof(GetProductByIdAsync), new { ProductId = productDisplayDto }, productDisplayDto);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
             }
+
         }
 
-        [HttpGet("{id}", Name = "GetProductByIdAsync")]
-        public async Task<IActionResult> GetProductByIdAsync(Guid id)
+        [HttpGet("{ProductId}", Name = "GetProductByIdAsync")]
+        public async Task<IActionResult> GetProductByIdAsync(Guid ProductId)
         {
             try
             {
-                var product = await _productRepository.GetProductByIdAsync(id);
+                var product = await _productRepository.GetProductByIdAsync(ProductId);
                 if (product == null)
                 {
-                    return NotFound($"Product with id {id} not found");
+                    return NotFound($"Product with id {ProductId} not found");
                 }
                 return Ok(product.ToProductDisplayDto());
             }
@@ -64,7 +66,6 @@ namespace SuperFarm.Controllers
                 {
                     return NotFound($"Product with id {id} not found");
                 }
-                await _productRepository.UpdateProductAsync(productUpdateDto.ToProduct());
                 return NoContent();
             }
             catch (Exception ex)
@@ -84,7 +85,7 @@ namespace SuperFarm.Controllers
                     return NotFound($"Product with id {id} not found");
                 }
                 await _productRepository.DeleteProductAsync(id);
-                return NoContent();
+                return Ok("Product deleted successfully");
             }
             catch (Exception ex)
             {

@@ -1,20 +1,21 @@
 using System.Data;
 using Dapper;
-using Npgsql;
 using SuperFarm.Application.DTOs;
 using SuperFarm.Domain.Entities;
 using SuperFarm.Domain.Enums;
+using SuperFarm.Services;
 
 namespace SuperFarm.Infrastructure.Repositories.UserRepositories
 {
-    public class UserRepository(IDbConnection dbConnection) : IUserRepositories
+    public class UserRepository(IDbConnection dbConnection, UserContextService userContextService) : IUserRepositories
     {
         private readonly IDbConnection _dbConnection = dbConnection;
+        private readonly UserContextService _userContextService = userContextService;
 
         public async Task<IEnumerable<User>> GetAllUserAsync()
         {
 
-            var sql = "SELECT user_id AS Id, user_name AS Username, password AS Password, first_name AS FirstName," +
+            var sql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, first_name AS FirstName," +
             "last_name AS LastName, age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role FROM Users";
             var users = await _dbConnection.QueryAsync<User>(sql);
             foreach (var user in users)
@@ -36,40 +37,85 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
             return user;
         }
 
-        public async Task<User?> GetUserByEmailAsync(string email)
+
+
+
+        public async Task<User> UpdateUserAsync(UserUpdateDto request, Guid? UserId)
         {
-            var sql = "SELECT user_id AS Id, user_name AS Username, password AS Password, first_name AS FirstName, last_name AS LastName," +
-                      " age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role FROM Users WHERE email = @Email";
-            var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(sql, new { Email = email });
-            if (user != null)
+            var userId = _userContextService.GetUserId();
+            var userRole = _userContextService.GetUserRole();
+
+            if (userRole == "Customer")
             {
-                user.Role = Enum.Parse<Role>(user.Role.ToString());
+                // Scenario 1: User is a Farmer
+                var user = await GetUserByIdAsync(userId);
+                if (user == null || request.UserId != userId)
+                {
+                    throw new UnauthorizedAccessException("You do not have permission to update this user.");
+                }
+                var sql = @"UPDATE users
+                SET first_name = @FirstName, last_name = @Lastname, email = @Email, password = @Password, phone_nr = @PhoneNr, age = @Age, address = @Address, role = @Role::text
+                WHERE user_id = @UserId";
+                await _dbConnection.ExecuteAsync(sql, new
+                {
+                    UserId = userId, // Use the farm ID from the retrieved farm object
+                    request.Username,
+                    request.Password,
+                    request.FirstName,
+                    request.LastName,
+                    request.Age,
+                    request.Email,
+                    request.PhoneNr,
+                    request.Address,
+                    Role = request.Role.ToString()  // Convert enum to string
+                }).ConfigureAwait(false);
             }
-            return user;
-        }
-
-
-        public async Task<User> UpdateUserAsync(User user)
-        {
-            var sql = @"
-                UPDATE users 
-                SET first_name = @FirstName, last_name = @Lastname, email = @Email, password = @Password, phone_nr = @PhoneNr, age = @Age, address = @Address, role = @Role::text 
-                WHERE user_id = @Id 
-                RETURNING user_id AS Id, user_name AS Username, password AS Password, first_name AS FirstName, last_name AS LastName," +
-                      " age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role";
-            var updatedUser = await _dbConnection.QueryFirstOrDefaultAsync<User>(sql, new
+            else if (userRole == "Admin")
             {
-                user.Username,
-                user.Password,
-                user.FirstName,
-                user.LastName,
-                user.Age,
-                user.Email,
-                user.PhoneNr,
-                user.Address,
-                Role = user.Role.ToString()  // Convert enum to string
-            }) ?? throw new InvalidOperationException("User update failed.");
+                // Scenario 2: User is not a Customer
+                if (request.UserId == Guid.Empty)
+                {
+                    throw new ArgumentException("User ID is required.");
+                }
+                var user = await GetUserByIdAsync(request.UserId);
+                if (user == null)
+                {
+                    throw new InvalidOperationException("User not found.");
+                }
+                else
+                {
+                    var sql = @"UPDATE users
+                    SET first_name = @FirstName, last_name = @Lastname, email = @Email, password = @Password, phone_nr = @PhoneNr, age = @Age, address = @Address, role = @Role::text
+                    WHERE user_id = @UserId";
+                    await _dbConnection.ExecuteAsync(sql, new
+                    {
+                        request.UserId, // Use the farm ID from the retrieved farm object
+                        request.Username,
+                        request.Password,
+                        request.FirstName,
+                        request.LastName,
+                        request.Age,
+                        request.Email,
+                        request.PhoneNr,
+                        request.Address,
+                        Role = request.Role.ToString()  // Convert enum to string
+                    }).ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("You do not have permission to update this user.");
+            }
+
+            var updatedUserSql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, first_name AS FirstName," +
+            "last_name AS LastName, age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role FROM Users WHERE user_id = @UserId";
+            var updatedUser = await _dbConnection.QueryFirstOrDefaultAsync<User>(updatedUserSql, new { request.UserId }).ConfigureAwait(false);
+            if (updatedUser == null)
+            {
+                throw new InvalidOperationException("Updated user not found.");
+            }
             return updatedUser;
+
         }
 
         public async Task DeleteUserAsync(Guid id)
