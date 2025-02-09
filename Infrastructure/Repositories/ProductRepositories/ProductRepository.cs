@@ -1,6 +1,5 @@
 using System.Data;
 using Dapper;
-using Microsoft.AspNetCore.Http.HttpResults;
 using SuperFarm.Application.DTOs;
 using SuperFarm.Domain.Entities;
 using SuperFarm.Services;

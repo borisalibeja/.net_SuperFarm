@@ -65,7 +65,11 @@ namespace SuperFarm.Api.Controllers
                 }
 
                 await _userRepository.DeleteUserAsync(id);
-                return NoContent();
+                return Ok("User with id " + id + " deleted successfully");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {

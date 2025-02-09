@@ -36,10 +36,6 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
             }
             return user;
         }
-
-
-
-
         public async Task<User> UpdateUserAsync(UserUpdateDto request, Guid? UserId)
         {
             var userId = _userContextService.GetUserId();
@@ -49,7 +45,7 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
             {
                 // Scenario 1: User is a Farmer
                 var user = await GetUserByIdAsync(userId);
-                if (user == null || request.UserId != userId)
+                if (user == null || userId == UserId)
                 {
                     throw new UnauthorizedAccessException("You do not have permission to update this user.");
                 }
@@ -118,9 +114,34 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
 
         }
 
-        public async Task DeleteUserAsync(Guid id)
+        public async Task DeleteUserAsync(Guid UserId)
         {
-            await _dbConnection.ExecuteAsync("DELETE FROM users WHERE user_id = @Id", new { Id = id });
+            var userId = _userContextService.GetUserId();
+            var userRole = _userContextService.GetUserRole();
+
+            if (userRole == "Customer")
+            {
+                if (userId != UserId)
+                {
+                    throw new UnauthorizedAccessException("You do not have permission to delete this user.");
+                }
+                var sql = "DELETE FROM users WHERE user_id = @UserId";
+                await _dbConnection.ExecuteAsync(sql, new { UserId = userId }).ConfigureAwait(false);
+            }
+            else if (userRole == "Admin")
+            {
+                var user = await GetUserByIdAsync(UserId);
+                if (user == null)
+                {
+                    throw new InvalidOperationException("User not found.");
+                }
+                var sql = "DELETE FROM users WHERE user_id = @UserId";
+                await _dbConnection.ExecuteAsync(sql, new { UserId }).ConfigureAwait(false);
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("You do not have permission to delete this user.");
+            }
         }
 
     }
