@@ -139,6 +139,7 @@ public class FarmRepository(IDbConnection dbConnection, UserContextService userC
     }
 
     public async Task DeleteFarmAsync(Guid? FarmId)
+
     {
         var userId = _userContextService.GetUserId();
         var userRole = _userContextService.GetUserRole();
@@ -181,5 +182,13 @@ public class FarmRepository(IDbConnection dbConnection, UserContextService userC
             await _dbConnection.ExecuteAsync(sql, new { farmId = FarmId }).ConfigureAwait(false);
 
         }
+    }
+
+    public async Task<IEnumerable<FarmDisplayDto>> QueryFarmByNameAsync(string? farmName)
+    {
+        var sql = "SELECT farm_id as FarmId, user_id as UserId, farm_name as FarmName," +
+        " farm_address as FarmAddress, creation_date as CreationDate FROM farms WHERE farm_name LIKE @Name";
+        var farms = await _dbConnection.QueryAsync<FarmDisplayDto>(sql, new { Name = $"%{farmName}%" });
+        return farms;
     }
 }

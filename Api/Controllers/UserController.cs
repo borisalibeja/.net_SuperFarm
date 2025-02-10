@@ -30,7 +30,7 @@ namespace SuperFarm.Api.Controllers
             }
         }
 
-        [HttpGet("query-by-name/{FullName}")]
+        [HttpGet("queryCustomer-by-name/{FullName}")]
         public async Task<IActionResult> QueryUserByName(string? FullName)
         {
             try

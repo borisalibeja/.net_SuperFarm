@@ -13,5 +13,7 @@ public interface IFarmRepositories
     Task<Farm> CreateFarmAsync(FarmCreateDto request);
     Task<Farm> UpdateFarmAsync(FarmUpdateDto request, Guid? FarmId);
     Task DeleteFarmAsync(Guid? FarmId);
+
+    Task<IEnumerable<FarmDisplayDto>> QueryFarmByNameAsync(string? farmName);
 }
 

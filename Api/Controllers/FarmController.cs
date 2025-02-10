@@ -105,5 +105,25 @@ namespace SuperFarm.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
+
+        [HttpGet("queryFarm-by-name/{FarmName}")]
+        public async Task<IActionResult> QueryUserByName(string? FarmName)
+        {
+            try
+            {
+                var farm = await _farmRepository.QueryFarmByNameAsync(FarmName);
+                if (farm == null)
+                {
+                    return NotFound(new { message = "Farm not found." });
+                }
+
+                return Ok(farm);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+            }
+        }
     }
 }
