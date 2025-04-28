@@ -24,16 +24,40 @@ public class ProductRepository(IDbConnection dbConnection, UserContextService us
         " product_price as ProductPrice, product_category as ProductCategory FROM products where product_id = @id", new { id });
     }
 
-    public async Task<IEnumerable<ProductDisplayDto>> QueryProductByNameAsync(string? name)
+    public async Task<IEnumerable<ProductDisplayDto>> QueryProductAsync(string? name, string? category )
     {
-        var sql = "SELECT product_id as ProductId, farm_id as FarmId, product_name as ProductName, product_price as ProductPrice, product_category as ProductCategory FROM products WHERE product_name LIKE @Name";
-        var products = await _dbConnection.QueryAsync<ProductDisplayDto>(sql, new { Name = $"%{name}%" });
-        foreach (var product in products)
-        {
-            product.ProductCategory = Enum.Parse<ProductsCategory>(product.ProductCategory.ToString());
-        }
-        return products;
+    var sql = "SELECT product_id as ProductId, farm_id as FarmId, product_name as ProductName, " +
+              "product_price as ProductPrice, product_category as ProductCategory FROM products WHERE 1=1";
+
+    // Add filters dynamically
+    if (!string.IsNullOrEmpty(name))
+    {
+        sql += " AND product_name LIKE @Name";
     }
+    if (!string.IsNullOrEmpty(category))
+    {
+        sql += " AND product_category = @Category";
+    }
+
+    // Query parameters
+    var parameters = new
+    {
+        Name = string.IsNullOrEmpty(name) ? null : $"%{name}%",
+        Category = category
+    };
+
+    // Execute the query
+    var products = await _dbConnection.QueryAsync<ProductDisplayDto>(sql, parameters);
+
+    // Convert the product_category string to enum
+    foreach (var product in products)
+    {
+        product.ProductCategory = Enum.Parse<ProductsCategory>(product.ProductCategory.ToString());
+    }
+
+    return products;
+    }
+
     public async Task<Product> CreateProductAsync(ProductCreateDto request)
     {
         var userId = _userContextService.GetUserId();

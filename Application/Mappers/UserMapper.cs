@@ -10,12 +10,12 @@ public static class UserMapper
         {
             Username = userCreateDto.Username,
             Password = userCreateDto.Password,
-            FirstName = userCreateDto.FirstName,
-            LastName = userCreateDto.LastName,
-            Email = userCreateDto.Email,
+            FirstName = userCreateDto.FirstName ?? string.Empty,
+            LastName = userCreateDto.LastName ?? string.Empty,
+            Email = userCreateDto.Email ?? string.Empty,
             PhoneNr = userCreateDto.PhoneNr,
             Age = userCreateDto.Age,
-            Address = userCreateDto.Address
+            Address = userCreateDto.Address ?? string.Empty
         };
     }
 
@@ -43,11 +43,11 @@ public static class UserMapper
             UserId = user.UserId,
             Username = user.Username,
             Password = user.Password,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email,
-            PhoneNr = user.PhoneNr,
-            Age = user.Age,
+            FirstName = user.FirstName ?? string.Empty,
+            LastName = user.LastName ?? string.Empty,
+            Email = user.Email ?? string.Empty,
+            PhoneNr = user.PhoneNr ?? 0,
+            Age = user.Age ?? 0,
             Address = user.Address,
             Role = user.Role
         };

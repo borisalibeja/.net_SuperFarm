@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\emerg\\OneDrive\\Desktop\\code\\dotnet_SuperFarm\\SuperFarm\\SuperFarm.csproj": {}
+    "C:\\Users\\emerg\\OneDrive\\Desktop\\code\\LocalFarm\\LocalFarm-BackEnd\\SuperFarm.csproj": {}
   },
   "projects": {
-    "C:\\Users\\emerg\\OneDrive\\Desktop\\code\\dotnet_SuperFarm\\SuperFarm\\SuperFarm.csproj": {
+    "C:\\Users\\emerg\\OneDrive\\Desktop\\code\\LocalFarm\\LocalFarm-BackEnd\\SuperFarm.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\emerg\\OneDrive\\Desktop\\code\\dotnet_SuperFarm\\SuperFarm\\SuperFarm.csproj",
+        "projectUniqueName": "C:\\Users\\emerg\\OneDrive\\Desktop\\code\\LocalFarm\\LocalFarm-BackEnd\\SuperFarm.csproj",
         "projectName": "SuperFarm",
-        "projectPath": "C:\\Users\\emerg\\OneDrive\\Desktop\\code\\dotnet_SuperFarm\\SuperFarm\\SuperFarm.csproj",
+        "projectPath": "C:\\Users\\emerg\\OneDrive\\Desktop\\code\\LocalFarm\\LocalFarm-BackEnd\\SuperFarm.csproj",
         "packagesPath": "C:\\Users\\emerg\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\emerg\\OneDrive\\Desktop\\code\\dotnet_SuperFarm\\SuperFarm\\obj\\",
+        "outputPath": "C:\\Users\\emerg\\OneDrive\\Desktop\\code\\LocalFarm\\LocalFarm-BackEnd\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

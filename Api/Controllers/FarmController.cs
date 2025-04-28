@@ -107,7 +107,7 @@ namespace SuperFarm.Controllers
         }
 
 
-        [HttpGet("queryFarm-by-name/{FarmName}")]
+        [HttpGet("/queryFarm-by-name/{FarmName}")]
         public async Task<IActionResult> QueryUserByName(string? FarmName)
         {
             try

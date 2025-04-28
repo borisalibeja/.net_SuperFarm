@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SuperFarm.Application.DTOs;
 using SuperFarm.Application.Mappers;
+using SuperFarm.Domain.Entities;
 using SuperFarm.Infrastructure.Repositories.ProductRepositories;
 
 
@@ -143,21 +144,26 @@ namespace SuperFarm.Controllers
             }
         }
 
-        [HttpGet("/{ProductName?}")]
-        public async Task<IActionResult> QueryProductByName(string? ProductName)
+        [HttpGet("/queryProducts")]
+        public async Task<IActionResult> QueryProduct([FromQuery] string? ProductName, [FromQuery] string? ProductCategory)
         {
             try
             {
-                var product = await _productRepository.QueryProductByNameAsync(ProductName);
-                if (product == null)
+                // Query products
+                var products = await _productRepository.QueryProductAsync(ProductName, ProductCategory);
+
+                // Handle no results
+                if (products == null || !products.Any())
                 {
-                    return NotFound($"Product with name {ProductName} not found");
+                    return NotFound("No products found matching the provided criteria.");
                 }
-                return Ok(product);
+
+                return Ok(products);
             }
-            catch (Exception ex)
+            catch (Exception )
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                // Log the exception if necessary
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
         }
     }

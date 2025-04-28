@@ -8,7 +8,7 @@ namespace SuperFarm.Domain.Enums
         Meat,
         Seafood,
         Grains,
-        Nuts,
+        Plants,
         Other
     }
 }

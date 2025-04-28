@@ -73,7 +73,7 @@ namespace SuperFarm.Services
             user.Password = new PasswordHasher<User>().HashPassword(user, request.Password);
 
             var sql = "INSERT INTO Users (user_id, user_name, password, first_name, last_name, age, email, phone_nr, address, role) " +
-                      "VALUES (@Id, @Username, @Password, @FirstName, @LastName, @Age, @Email, @PhoneNr, @Address, @Role)";
+                      "VALUES (@UserId, @Username, @Password, @FirstName, @LastName, @Age, @Email, @PhoneNr, @Address, @Role)";
 
             await _dbConnection.ExecuteAsync(sql, new
             {
