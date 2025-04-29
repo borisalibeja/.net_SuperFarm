@@ -85,7 +85,7 @@ public class ProductRepository(IDbConnection dbConnection, UserContextService us
                 product.FarmId,
                 product.ProductName,
                 product.ProductPrice,
-                product.ProductCategory
+                ProductCategory = product.ProductCategory.ToString()
             }).ConfigureAwait(false);
         }
         else

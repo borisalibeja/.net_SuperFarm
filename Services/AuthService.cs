@@ -49,8 +49,8 @@ namespace SuperFarm.Services
 
 
             var existingUser = await _dbConnection.QueryFirstOrDefaultAsync<User>(
-                "SELECT * FROM Users WHERE user_name = @Username",
-                new { Username = request.Username });
+                "SELECT * FROM Users WHERE user_name = @UserName",
+                new { UserName = request.Username });
 
             if (existingUser != null)
             {
