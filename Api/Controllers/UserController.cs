@@ -12,8 +12,8 @@ namespace SuperFarm.Api.Controllers
         private readonly IUserRepositories _userRepository = userRepository;
 
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserByIdAsync(Guid id)
+        [HttpGet("{id?}")]
+        public async Task<IActionResult> GetUserByIdAsync(Guid? id)
         {
             try
             {
@@ -30,7 +30,26 @@ namespace SuperFarm.Api.Controllers
             }
         }
 
-        [HttpGet("queryCustomer-by-name/{FullName}")]
+        [HttpGet("/myUserInfo")]
+        public async Task<IActionResult> GetMyUserInfoAsync()
+        {
+            try
+            {
+                var user = await _userRepository.GetMyUserInfoAsync();
+                if (user == null)
+                {
+                    return NotFound("You are not logged in");
+                }
+                // return Ok(user.ToUserDisplayDto());
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpGet("/searchUser-by-name/{FullName}")]
         public async Task<IActionResult> QueryUserByName(string? FullName)
         {
             try
@@ -55,8 +74,8 @@ namespace SuperFarm.Api.Controllers
             try
             {
                 request.UserId = UserId ?? request.UserId;
-                var updatedFarm = await _userRepository.UpdateUserAsync(request, UserId);
-                return Ok(updatedFarm);
+                var updatedUser = await _userRepository.UpdateUserAsync(request, UserId);
+                return Ok(updatedUser);
             }
             catch (UnauthorizedAccessException ex)
             {
