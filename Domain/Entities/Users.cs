@@ -14,7 +14,7 @@ public class User
     public string? LastName { get; set; } = string.Empty;
     public int? Age { get; set; }
     public string? Email { get; set; } = string.Empty;
-    public int? PhoneNr { get; set; }
+    public string? PhoneNr { get; set; }
     public string? Address { get; set; }
 
     [JsonConverter(typeof(StringEnumConverter))]

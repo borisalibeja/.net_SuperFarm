@@ -1,6 +1,7 @@
 using System.Data;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
+using Npgsql.Internal;
 using SuperFarm.Application.DTOs;
 using SuperFarm.Domain.Entities;
 using SuperFarm.Domain.Enums;
@@ -60,6 +61,93 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
             }
             return user;
         }
+        public async Task<User> UpdateMyUserAsync(UserUpdateDto request)
+        {
+            var userId = _userContextService.GetUserId();
+            var user = await GetUserByIdAsync(userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("You are not logged in");
+            }
+            // Dynamically build the SQL query
+            var updateFields = new List<string>();
+            var parameters = new DynamicParameters();
+
+            if (!string.IsNullOrWhiteSpace(request.FirstName))
+            {
+                updateFields.Add("first_name = @FirstName");
+                parameters.Add("FirstName", request.FirstName);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.LastName))
+            {
+                updateFields.Add("last_name = @LastName");
+                parameters.Add("LastName", request.LastName);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Email))
+            {
+                updateFields.Add("email = @Email");
+                parameters.Add("Email", request.Email);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Password))
+            {
+                var passwordHasher = new PasswordHasher<User>();
+                string hashedPassword = passwordHasher.HashPassword(user, request.Password);
+                updateFields.Add("password = @Password");
+                parameters.Add("Password", hashedPassword);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.PhoneNr))
+            {
+                updateFields.Add("phone_nr = @PhoneNr");
+                parameters.Add("PhoneNr", request.PhoneNr);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Address))
+            {
+                updateFields.Add("address = @Address");
+                parameters.Add("Address", request.Address);
+            }
+
+            if (request.Age.HasValue)
+            {
+                updateFields.Add("age = @Age");
+                parameters.Add("Age", request.Age.Value);
+            }
+
+            if (request.Role != null)
+            {
+                updateFields.Add("role = @Role::text");
+                parameters.Add("Role", request.Role.ToString());
+            }
+
+            // If no fields were provided to update, throw an exception
+            if (!updateFields.Any())
+            {
+                throw new InvalidOperationException("No fields were provided to update.");
+            }
+
+            // Combine the dynamically built fields into the SQL query
+            var sql = $@"UPDATE users
+                 SET {string.Join(", ", updateFields)}
+                 WHERE user_id = @UserId";
+
+            parameters.Add("UserId", userId);
+
+            await _dbConnection.ExecuteAsync(sql, parameters).ConfigureAwait(false);
+
+            var updatedUserSql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, first_name AS FirstName," +
+            "last_name AS LastName, age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role FROM Users WHERE user_id = @UserId";
+            var updatedUser = await _dbConnection.QueryFirstOrDefaultAsync<User>(updatedUserSql, new { user.UserId }).ConfigureAwait(false);
+            if (updatedUser == null)
+            {
+                throw new InvalidOperationException("Updated user not found.");
+            }
+            return updatedUser;
+        }
         public async Task<User> UpdateUserAsync(UserUpdateDto request, Guid? UserId)
         {
             var userId = _userContextService.GetUserId();
@@ -95,11 +183,8 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
             else if (userRole == "Admin")
             {
                 // Scenario 2: User is a Admin
-                if (request.UserId == Guid.Empty)
-                {
-                    throw new ArgumentException("User ID is required.");
-                }
-                var user = await GetUserByIdAsync(request.UserId);
+
+                var user = await GetUserByIdAsync(UserId);
                 if (user == null)
                 {
                     throw new InvalidOperationException("User not found.");
@@ -113,7 +198,6 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
                     string hashedPassword = passwordHasher.HashPassword(user, request.Password);
                     await _dbConnection.ExecuteAsync(sql, new
                     {
-                        request.UserId, // Use the farm ID from the retrieved farm object
                         request.Username,
                         Password = hashedPassword,
                         request.FirstName,
@@ -133,7 +217,7 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
 
             var updatedUserSql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, first_name AS FirstName," +
             "last_name AS LastName, age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role FROM Users WHERE user_id = @UserId";
-            var updatedUser = await _dbConnection.QueryFirstOrDefaultAsync<User>(updatedUserSql, new { request.UserId }).ConfigureAwait(false);
+            var updatedUser = await _dbConnection.QueryFirstOrDefaultAsync<User>(updatedUserSql, new { UserId }).ConfigureAwait(false);
             if (updatedUser == null)
             {
                 throw new InvalidOperationException("Updated user not found.");
@@ -170,6 +254,21 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
             {
                 throw new UnauthorizedAccessException("You do not have permission to delete this user.");
             }
+        }
+
+
+        public async Task DeleteMyUserAsync()
+        {
+            var userId = _userContextService.GetUserId();
+            var user = await GetUserByIdAsync(userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("You are not logged in");
+            }
+            var sql = "Delete from users where user_id = @UserId";
+            await _dbConnection.ExecuteAsync(sql, new { UserId = userId }).ConfigureAwait(false);
+
         }
 
     }

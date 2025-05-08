@@ -67,13 +67,25 @@ namespace SuperFarm.Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
             }
         }
-
-        [HttpPut("{UserId?}")]
-        public async Task<IActionResult> UpdateUserAsync(UserUpdateDto request, Guid? UserId)
+        [HttpPatch("/UpdateMyUser")]
+        public async Task<IActionResult> UpdateMyUser(UserUpdateDto request)
         {
             try
             {
-                request.UserId = UserId ?? request.UserId;
+                var updatedUser = await _userRepository.UpdateMyUserAsync(request);
+                return Ok(updatedUser);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+        }
+
+        [HttpPut("{UserId?}")]
+        public async Task<IActionResult> UpdateUser(UserUpdateDto request, Guid? UserId)
+        {
+            try
+            {
                 var updatedUser = await _userRepository.UpdateUserAsync(request, UserId);
                 return Ok(updatedUser);
             }
@@ -112,6 +124,20 @@ namespace SuperFarm.Api.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpDelete("/delete-my-user")]
+        public async Task<IActionResult> DeleteMyUser()
+        {
+            try
+            {
+                await _userRepository.DeleteMyUserAsync();
+                return Ok("Account deleted successfully");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
             }
         }
 
