@@ -41,33 +41,37 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
         }
         public async Task<User?> GetUserByIdAsync(Guid? id)
         {
-            var sql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, first_name AS FirstName, last_name AS LastName," +
-            " age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role FROM Users WHERE user_id = @UserId";
-            var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(sql, new { UserId = id });
-            if (user != null && Enum.TryParse(typeof(Role), user.Role.ToString(), out var role))
-            {
-                user.Role = (Role)role;
-            }
+            var sql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, " +
+            " first_name AS FirstName, last_name AS LastName, age AS Age, email AS Email, " +
+            "user_phone_nr AS UserPhoneNr, country_code as CountryCode, street_name as StreetName, city as City, country as Country," +
+            " county as County, building_nr as BuildingNr, floor_nr as FloorNr, postcode as PostCode," +
+            "profile_img_url AS ProfileImgUrl, role AS Role, user_created_at AS UserCreatedAt, " +
+            "user_updated_at AS UserUpdatedAt, refresh_token AS RefreshToken, " +
+            "refresh_token_expiry_time AS RefreshTokenExpiryTime FROM Users WHERE user_id = @UserId";
+            var user = (await _dbConnection.QueryAsync<User>(sql, new { UserId = id }))
+                    .Select(u =>
+                    {
+                        u.FloorNr = u.FloorNr?.ToString(); // Convert FloorNr to string
+                        return u;
+                    })
+                    .FirstOrDefault();
             return user;
         }
         public async Task<User?> GetMyUserInfoAsync()
         {
             var userId = _userContextService.GetUserId();
-            var sql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, first_name AS FirstName, last_name AS LastName," +
-            " age AS Age, email AS Email, user_phone_nr AS UserPhoneNr, street_name as StreetName, city as City, country as Country," +
-            "county as County, building_nr as BuildingNr, floor_nr as FloorNR, postcode as PostCode, role AS Role FROM Users WHERE user_id = @UserId";
-            var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(sql, new { UserId = userId });
-            if (user != null && Enum.TryParse(typeof(Role), user.Role.ToString(), out var role))
+            var user = await GetUserByIdAsync(userId);
+            if (user == null)
             {
-                user.Role = (Role)role;
+                throw new InvalidOperationException("Updated user not found.");
             }
             return user;
         }
         public async Task<User> UpdateMyUserAsync(UserUpdateDto request)
         {
             var userId = _userContextService.GetUserId();
-            var user = await GetUserByIdAsync(userId);
             var userRole = _userContextService.GetUserRole();
+            var user = await GetUserByIdAsync(userId);
 
             if (user == null)
             {
@@ -109,16 +113,55 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
                 parameters.Add("UserPhoneNr", request.UserPhoneNr);
             }
 
-            if (!string.IsNullOrWhiteSpace(request.StreetName))
+            if (!string.IsNullOrWhiteSpace(request.CountryCode))
             {
-                updateFields.Add("street_name = @StreetName");
-                parameters.Add("StreetName", request.StreetName);
+                updateFields.Add("country_code = @CountryCode");
+                parameters.Add("CountryCode", request.CountryCode);
             }
 
             if (request.Age.HasValue)
             {
                 updateFields.Add("age = @Age");
                 parameters.Add("Age", request.Age.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.StreetName))
+            {
+                updateFields.Add("street_name = @StreetName");
+                parameters.Add("StreetName", request.StreetName);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.City))
+            {
+                updateFields.Add("city = @City");
+                parameters.Add("City", request.City);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Country))
+            {
+                updateFields.Add("country = @Country");
+                parameters.Add("Country", request.Country);
+            }
+            if (!string.IsNullOrWhiteSpace(request.County))
+            {
+                updateFields.Add("county = @County");
+                parameters.Add("County", request.County);
+            }
+            if (!string.IsNullOrWhiteSpace(request.BuildingNr))
+            {
+                updateFields.Add("building_nr = @BuildingNr");
+                parameters.Add("BuildingNr", request.BuildingNr);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.FloorNr))
+            {
+                updateFields.Add("floor_nr = @FloorNr");
+                parameters.Add("FloorNr", request.FloorNr);
+            }
+            if (!string.IsNullOrWhiteSpace(request.PostCode))
+            {
+                updateFields.Add("postcode = @PostCode");
+                parameters.Add("PostCode", request.PostCode);
             }
 
             if (request.Role.ToString() != userRole)
@@ -134,18 +177,15 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
             }
 
             // Combine the dynamically built fields into the SQL query
-            var sql = $@"UPDATE users
+            var updateUserSql = $@"UPDATE users
                  SET {string.Join(", ", updateFields)}
                  WHERE user_id = @UserId";
 
             parameters.Add("UserId", userId);
 
-            await _dbConnection.ExecuteAsync(sql, parameters).ConfigureAwait(false);
+            await _dbConnection.ExecuteAsync(updateUserSql, parameters).ConfigureAwait(false);
 
-            var updatedUserSql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, first_name AS FirstName," +
-            "last_name AS LastName, age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role " +
-            "FROM Users WHERE user_id = @UserId";
-            var updatedUser = await _dbConnection.QueryFirstOrDefaultAsync<User>(updatedUserSql, new { user.UserId }).ConfigureAwait(false);
+            var updatedUser = await GetUserByIdAsync(userId);
             if (updatedUser == null)
             {
                 throw new InvalidOperationException("Updated user not found.");

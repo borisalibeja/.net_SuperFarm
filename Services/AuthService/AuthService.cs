@@ -25,8 +25,7 @@ namespace SuperFarm.Services
 
         public async Task<TokenResponseDto?> LoginAsync(UserLoginDto request)
         {
-            var sql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, first_name AS FirstName," +
-            " last_name AS LastName, age AS Age, email AS Email, role AS Role FROM Users WHERE user_name = @UserName";
+            var sql = "SELECT user_id as UserId, user_name AS Username, password AS Password FROM Users WHERE user_name = @UserName";
             var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(sql, new { UserName = request.Username }).ConfigureAwait(false);
             if (user == null)
             {
@@ -146,7 +145,7 @@ namespace SuperFarm.Services
 
 
             var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(
-                "SELECT * FROM Users WHERE user_id = @Id AND RefreshToken = @RefreshToken AND RefreshTokenExpiryTime > @CurrentTime",
+                "SELECT * FROM Users WHERE user_id = @Id AND refresh_token = @RefreshToken AND refresh_token_expiry_time > @CurrentTime",
                 new { Id = id, RefreshToken = refreshToken, CurrentTime = DateTime.UtcNow });
 
             return user;
@@ -168,7 +167,7 @@ namespace SuperFarm.Services
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
-            var sql = "UPDATE Users SET RefreshToken = @RefreshToken, RefreshTokenExpiryTime = @RefreshTokenExpiryTime WHERE user_id = @UserId";
+            var sql = "UPDATE Users SET refresh_token = @RefreshToken, refresh_token_expiry_time = @RefreshTokenExpiryTime WHERE user_id = @UserId";
             await _dbConnection.ExecuteAsync(sql, new { user.RefreshToken, user.RefreshTokenExpiryTime, user.UserId });
 
             return refreshToken;

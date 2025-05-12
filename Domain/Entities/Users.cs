@@ -15,12 +15,13 @@ public class User
     public int? Age { get; set; }
     public string? Email { get; set; } = string.Empty;
     public string? UserPhoneNr { get; set; }
+    public string? CountryCode { get; set; }
     public string? StreetName { get; set; }
     public string? City { get; set; }
     public string? Country { get; set; }
     public string? County { get; set; }
     public string? BuildingNr { get; set; }
-    public string? FloorNR { get; set; }
+    public string? FloorNr { get; set; }
     public string? PostCode { get; set; }
     public string? ProfileImgUrl { get; set; }
 

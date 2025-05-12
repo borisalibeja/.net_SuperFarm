@@ -59,7 +59,9 @@ namespace SuperFarm.Controllers
 
         [Authorize(Policy = "FarmerPolicy")]
         [HttpPut("{FarmId?}")]
-        public async Task<IActionResult> UpdateFarmAsync(FarmUpdateDto farmUpdate, FarmDisplayDto farmDisplay, Guid? FarmId)
+        public async Task<IActionResult> UpdateFarm([FromBody] FarmUpdateDto farmUpdate,
+    [FromQuery] FarmDisplayDto farmDisplay,
+    [FromRoute] Guid? FarmId)
         {
 
             try
