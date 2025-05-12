@@ -49,7 +49,6 @@ public class FarmRepository(IDbConnection dbConnection, UserContextService userC
         {
             FarmId = Guid.NewGuid(), // Generate a new Guid for the farm ID
             FarmName = request.FarmName,
-            FarmAddress = request.FarmAddress,
             UserId = userId // Assign the farm to the current user
         };
 
@@ -60,7 +59,6 @@ public class FarmRepository(IDbConnection dbConnection, UserContextService userC
         {
             farm.FarmId,
             farm.FarmName,
-            farm.FarmAddress,
             farm.UserId
         }).ConfigureAwait(false);
 
@@ -82,7 +80,7 @@ public class FarmRepository(IDbConnection dbConnection, UserContextService userC
         var sql = "SELECT * FROM farms WHERE user_id = @userId";
         return (await _dbConnection.QueryFirstOrDefaultAsync<Farm>(sql, new { UserId = userId }).ConfigureAwait(false))!;
     }
-    public async Task<Farm> UpdateFarmAsync(FarmUpdateDto request, Guid? FarmId)
+    public async Task<Farm> UpdateFarmAsync(FarmUpdateDto farmUpdate, FarmDisplayDto farmDisplay, Guid? FarmId)
     {
         var userId = _userContextService.GetUserId();
         var userRole = _userContextService.GetUserRole();
@@ -90,7 +88,7 @@ public class FarmRepository(IDbConnection dbConnection, UserContextService userC
         {
             // Scenario 1: User is a Farmer
             var farm = await GetFarmByUserIdAsync();
-            if (farm == null || request.UserId != userId)
+            if (farm == null)
             {
                 throw new UnauthorizedAccessException("You do not have permission to update this farm.");
             }
@@ -98,18 +96,17 @@ public class FarmRepository(IDbConnection dbConnection, UserContextService userC
             await _dbConnection.ExecuteAsync(sql, new
             {
                 UserId = userId, // Use the farm ID from the retrieved farm object
-                request.FarmName,
-                request.FarmAddress
+                farmUpdate.FarmName,
             }).ConfigureAwait(false);
         }
         else if (userRole == "Admin")
         {
             // Scenario 2: User is not a Farmer
-            if (request.FarmId == Guid.Empty)
+            if (farmDisplay.FarmId == Guid.Empty)
             {
                 throw new ArgumentException("Farm ID is required.");
             }
-            var farm = await GetFarmByIdAsync(request.FarmId);
+            var farm = await GetFarmByIdAsync(farmDisplay.FarmId);
             if (farm == null)
             {
                 throw new InvalidOperationException("Farm not found.");
@@ -119,16 +116,15 @@ public class FarmRepository(IDbConnection dbConnection, UserContextService userC
                 var sql = "UPDATE farms SET farm_name = @FarmName, farm_address = @FarmAddress WHERE farm_id = @FarmId";
                 await _dbConnection.ExecuteAsync(sql, new
                 {
-                    request.FarmId,
-                    request.FarmName,
-                    request.FarmAddress
+                    farmDisplay.FarmId,
+                    farmUpdate.FarmName,
                 }).ConfigureAwait(false);
             }
         }
 
         var updatedFarmSql = "SELECT farm_id as FarmId, user_id as UserId, farm_name as FarmName, farm_address as FarmAddress, creation_date as CreationDate" +
         " FROM farms WHERE farm_id = @FarmId OR user_id = @UserId";
-        var updatedFarm = await _dbConnection.QueryFirstOrDefaultAsync<Farm>(updatedFarmSql, new { request.FarmId, UserId = userId }).ConfigureAwait(false);
+        var updatedFarm = await _dbConnection.QueryFirstOrDefaultAsync<Farm>(updatedFarmSql, new { farmDisplay.FarmId, UserId = userId }).ConfigureAwait(false);
         if (updatedFarm == null)
         {
             throw new InvalidOperationException("Updated farm not found.");

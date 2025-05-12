@@ -9,11 +9,18 @@ namespace SuperFarm.Application.Mappers
         {
             return new Product
             {
-                ProductId = productCreateDto.ProductId,
-                FarmId = productCreateDto.FarmId,
                 ProductName = productCreateDto.ProductName,
-                ProductPrice = productCreateDto.ProductPrice,
                 ProductCategory = productCreateDto.ProductCategory,
+                ProductDescription = productCreateDto.ProductDescription,
+                ProductPrice = productCreateDto.ProductPrice,
+                Currency = productCreateDto.Currency,
+                StockUnit = productCreateDto.StockUnit,
+                StockWeight = productCreateDto.StockWeight,
+                ImgUrl1 = productCreateDto.ImgUrl1,
+                ImgUrl2 = productCreateDto.ImgUrl2,
+                ImgUrl3 = productCreateDto.ImgUrl3,
+                ImgUrl4 = productCreateDto.ImgUrl4,
+                ImgUrl5 = productCreateDto.ImgUrl5
             };
         }
 
@@ -21,11 +28,18 @@ namespace SuperFarm.Application.Mappers
         {
             return new Product
             {
-                ProductId = productUpdateDto.ProductId,
-                FarmId = productUpdateDto.FarmId,
                 ProductName = productUpdateDto.ProductName,
-                ProductPrice = productUpdateDto.ProductPrice,
                 ProductCategory = productUpdateDto.ProductCategory,
+                ProductDescription = productUpdateDto.ProductDescription,
+                ProductPrice = productUpdateDto.ProductPrice,
+                Currency = productUpdateDto.Currency,
+                StockUnit = productUpdateDto.StockUnit,
+                StockWeight = productUpdateDto.StockWeight,
+                ImgUrl1 = productUpdateDto.ImgUrl1,
+                ImgUrl2 = productUpdateDto.ImgUrl2,
+                ImgUrl3 = productUpdateDto.ImgUrl3,
+                ImgUrl4 = productUpdateDto.ImgUrl4,
+                ImgUrl5 = productUpdateDto.ImgUrl5
             };
         }
 
@@ -36,8 +50,19 @@ namespace SuperFarm.Application.Mappers
                 ProductId = product.ProductId,
                 FarmId = product.FarmId,
                 ProductName = product.ProductName,
-                ProductPrice = product.ProductPrice,
                 ProductCategory = product.ProductCategory,
+                ProductDescription = product.ProductDescription,
+                ProductPrice = product.ProductPrice,
+                Currency = product.Currency,
+                StockUnit = product.StockUnit,
+                StockWeight = product.StockWeight,
+                ImgUrl1 = product.ImgUrl1,
+                ImgUrl2 = product.ImgUrl2,
+                ImgUrl3 = product.ImgUrl3,
+                ImgUrl4 = product.ImgUrl4,
+                ImgUrl5 = product.ImgUrl5,
+                ProductCreatedAt = product.ProductCreatedAt,
+                ProductUpdatedAt = product.ProductUpdatedAt
             };
         }
     }

@@ -14,11 +14,20 @@ public class User
     public string? LastName { get; set; } = string.Empty;
     public int? Age { get; set; }
     public string? Email { get; set; } = string.Empty;
-    public string? PhoneNr { get; set; }
-    public string? Address { get; set; }
+    public string? UserPhoneNr { get; set; }
+    public string? StreetName { get; set; }
+    public string? City { get; set; }
+    public string? Country { get; set; }
+    public string? County { get; set; }
+    public string? BuildingNr { get; set; }
+    public string? FloorNR { get; set; }
+    public string? PostCode { get; set; }
+    public string? ProfileImgUrl { get; set; }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public Role Role { get; set; }
+    public DateTime? UserCreatedAt { get; set; }
+    public DateTime? UserUpdatedAt { get; set; }
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiryTime { get; set; }
 

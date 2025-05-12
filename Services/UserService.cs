@@ -30,7 +30,8 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
         public async Task<IEnumerable<UserDisplayDto>> QueryUserByNameAsync(string? name)
         {
             var sql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, first_name AS FirstName," +
-            "last_name AS LastName, age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role FROM Users WHERE first_name LIKE @Name OR last_name LIKE @Name";
+            "last_name AS LastName, age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role " +
+            " FROM Users WHERE first_name LIKE @Name OR last_name LIKE @Name";
             var users = await _dbConnection.QueryAsync<UserDisplayDto>(sql, new { Name = $"%{name}%" });
             foreach (var user in users)
             {
@@ -41,7 +42,7 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
         public async Task<User?> GetUserByIdAsync(Guid? id)
         {
             var sql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, first_name AS FirstName, last_name AS LastName," +
-                      " age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role FROM Users WHERE user_id = @UserId";
+            " age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role FROM Users WHERE user_id = @UserId";
             var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(sql, new { UserId = id });
             if (user != null && Enum.TryParse(typeof(Role), user.Role.ToString(), out var role))
             {
@@ -53,7 +54,8 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
         {
             var userId = _userContextService.GetUserId();
             var sql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, first_name AS FirstName, last_name AS LastName," +
-                      " age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role FROM Users WHERE user_id = @UserId";
+            " age AS Age, email AS Email, user_phone_nr AS UserPhoneNr, street_name as StreetName, city as City, country as Country," +
+            "county as County, building_nr as BuildingNr, floor_nr as FloorNR, postcode as PostCode, role AS Role FROM Users WHERE user_id = @UserId";
             var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(sql, new { UserId = userId });
             if (user != null && Enum.TryParse(typeof(Role), user.Role.ToString(), out var role))
             {
@@ -65,6 +67,7 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
         {
             var userId = _userContextService.GetUserId();
             var user = await GetUserByIdAsync(userId);
+            var userRole = _userContextService.GetUserRole();
 
             if (user == null)
             {
@@ -100,16 +103,16 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
                 parameters.Add("Password", hashedPassword);
             }
 
-            if (!string.IsNullOrWhiteSpace(request.PhoneNr))
+            if (!string.IsNullOrWhiteSpace(request.UserPhoneNr))
             {
-                updateFields.Add("phone_nr = @PhoneNr");
-                parameters.Add("PhoneNr", request.PhoneNr);
+                updateFields.Add("user_phone_nr = @UserPhoneNr");
+                parameters.Add("UserPhoneNr", request.UserPhoneNr);
             }
 
-            if (!string.IsNullOrWhiteSpace(request.Address))
+            if (!string.IsNullOrWhiteSpace(request.StreetName))
             {
-                updateFields.Add("address = @Address");
-                parameters.Add("Address", request.Address);
+                updateFields.Add("street_name = @StreetName");
+                parameters.Add("StreetName", request.StreetName);
             }
 
             if (request.Age.HasValue)
@@ -118,7 +121,7 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
                 parameters.Add("Age", request.Age.Value);
             }
 
-            if (request.Role != null)
+            if (request.Role.ToString() != userRole)
             {
                 updateFields.Add("role = @Role::text");
                 parameters.Add("Role", request.Role.ToString());
@@ -140,7 +143,8 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
             await _dbConnection.ExecuteAsync(sql, parameters).ConfigureAwait(false);
 
             var updatedUserSql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, first_name AS FirstName," +
-            "last_name AS LastName, age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role FROM Users WHERE user_id = @UserId";
+            "last_name AS LastName, age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role " +
+            "FROM Users WHERE user_id = @UserId";
             var updatedUser = await _dbConnection.QueryFirstOrDefaultAsync<User>(updatedUserSql, new { user.UserId }).ConfigureAwait(false);
             if (updatedUser == null)
             {
@@ -162,21 +166,25 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
                     throw new UnauthorizedAccessException("You do not have permission to update this user.");
                 }
                 var sql = @"UPDATE users
-                SET first_name = @FirstName, last_name = @Lastname, email = @Email, password = @Password, phone_nr = @PhoneNr, age = @Age, address = @Address, role = @Role::text
-                WHERE user_id = @UserId";
+                SET first_name = @FirstName, last_name = @Lastname, email = @Email, password = @Password, " +
+                " user_phone_nr = @UserPhoneNr, age = @Age, street_name = @StreetName, role = @Role::text " +
+                "WHERE user_id = @UserId";
+                if (string.IsNullOrEmpty(request.Password))
+                {
+                    throw new ArgumentException("Password cannot be null or empty.");
+                }
                 var passwordHasher = new PasswordHasher<User>();
                 string hashedPassword = passwordHasher.HashPassword(user, request.Password);
                 await _dbConnection.ExecuteAsync(sql, new
                 {
                     UserId = userId,
-                    request.Username,
                     Password = hashedPassword,
                     request.FirstName,
                     request.LastName,
                     request.Age,
                     request.Email,
-                    request.PhoneNr,
-                    request.Address,
+                    request.UserPhoneNr,
+                    request.StreetName,
                     Role = request.Role.ToString()  // Convert enum to string
                 }).ConfigureAwait(false);
             }
@@ -194,18 +202,21 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
                     var sql = @"UPDATE users
                     SET first_name = @FirstName, last_name = @Lastname, email = @Email, password = @Password, phone_nr = @PhoneNr, age = @Age, address = @Address, role = @Role::text
                     WHERE user_id = @UserId";
+                    if (string.IsNullOrEmpty(request.Password))
+                    {
+                        throw new ArgumentException("Password cannot be null or empty.");
+                    }
                     var passwordHasher = new PasswordHasher<User>();
                     string hashedPassword = passwordHasher.HashPassword(user, request.Password);
                     await _dbConnection.ExecuteAsync(sql, new
                     {
-                        request.Username,
                         Password = hashedPassword,
                         request.FirstName,
                         request.LastName,
                         request.Age,
                         request.Email,
-                        request.PhoneNr,
-                        request.Address,
+                        request.UserPhoneNr,
+                        request.StreetName,
                         Role = request.Role.ToString()  // Convert enum to string
                     }).ConfigureAwait(false);
                 }

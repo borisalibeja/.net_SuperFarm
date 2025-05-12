@@ -59,13 +59,13 @@ namespace SuperFarm.Controllers
 
         [Authorize(Policy = "FarmerPolicy")]
         [HttpPut("{FarmId?}")]
-        public async Task<IActionResult> UpdateFarmAsync(FarmUpdateDto request, Guid? FarmId)
+        public async Task<IActionResult> UpdateFarmAsync(FarmUpdateDto farmUpdate, FarmDisplayDto farmDisplay, Guid? FarmId)
         {
 
             try
             {
-                request.FarmId = FarmId ?? request.FarmId;
-                var updatedFarm = await _farmRepository.UpdateFarmAsync(request, FarmId);
+                farmDisplay.FarmId = FarmId ?? farmDisplay.FarmId;
+                var updatedFarm = await _farmRepository.UpdateFarmAsync(farmUpdate, farmDisplay, FarmId);
                 return Ok(updatedFarm);
             }
             catch (UnauthorizedAccessException ex)

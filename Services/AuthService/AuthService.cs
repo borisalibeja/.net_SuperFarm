@@ -25,8 +25,9 @@ namespace SuperFarm.Services
 
         public async Task<TokenResponseDto?> LoginAsync(UserLoginDto request)
         {
-            var sql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, first_name AS FirstName, last_name AS LastName, age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role FROM Users WHERE user_name = @Username";
-            var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(sql, new { Username = request.Username }).ConfigureAwait(false);
+            var sql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, first_name AS FirstName," +
+            " last_name AS LastName, age AS Age, email AS Email, role AS Role FROM Users WHERE user_name = @UserName";
+            var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(sql, new { UserName = request.Username }).ConfigureAwait(false);
             if (user == null)
             {
                 Console.WriteLine("User not found");
@@ -65,15 +66,18 @@ namespace SuperFarm.Services
                 LastName = request.LastName,
                 Age = request.Age,
                 Email = request.Email,
-                PhoneNr = request.PhoneNr,
-                Address = request.Address,
+                UserPhoneNr = request.UserPhoneNr,
+                StreetName = request.StreetName,
                 Role = Domain.Enums.Role.Customer
             };
-
+            if (string.IsNullOrEmpty(request.Password))
+            {
+                throw new ArgumentException("Password cannot be null or empty.");
+            }
             user.Password = new PasswordHasher<User>().HashPassword(user, request.Password);
 
-            var sql = "INSERT INTO Users (user_id, user_name, password, first_name, last_name, age, email, phone_nr, address, role) " +
-                      "VALUES (@UserId, @Username, @Password, @FirstName, @LastName, @Age, @Email, @PhoneNr, @Address, @Role)";
+            var sql = "INSERT INTO Users (user_id, user_name, password, first_name, last_name, age, email, user_phone_nr, role) " +
+                      "VALUES (@UserId, @Username, @Password, @FirstName, @LastName, @Age, @Email, @UserPhoneNr, @Role)";
 
             await _dbConnection.ExecuteAsync(sql, new
             {
@@ -84,8 +88,8 @@ namespace SuperFarm.Services
                 user.LastName,
                 user.Age,
                 user.Email,
-                user.PhoneNr,
-                user.Address,
+                user.UserPhoneNr,
+                user.StreetName,
                 Role = user.Role.ToString()
             }).ConfigureAwait(false);
 

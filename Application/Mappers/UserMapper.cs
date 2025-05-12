@@ -9,14 +9,21 @@ public static class UserMapper
     {
         return new User
         {
-            Username = userCreateDto.Username,
-            Password = userCreateDto.Password,
+            Username = userCreateDto.Username ?? string.Empty,
+            Password = userCreateDto.Password ?? string.Empty,
             FirstName = userCreateDto.FirstName ?? string.Empty,
             LastName = userCreateDto.LastName ?? string.Empty,
             Email = userCreateDto.Email ?? string.Empty,
-            PhoneNr = userCreateDto.PhoneNr ?? string.Empty,
+            UserPhoneNr = userCreateDto.UserPhoneNr ?? string.Empty,
             Age = userCreateDto.Age,
-            Address = userCreateDto.Address ?? string.Empty
+            StreetName = userCreateDto.StreetName,
+            City = userCreateDto.City,
+            Country = userCreateDto.Country,
+            County = userCreateDto.County,
+            BuildingNr = userCreateDto.BuildingNr,
+            FloorNR = userCreateDto.FloorNR,
+            PostCode = userCreateDto.PostCode,
+            ProfileImgUrl = userCreateDto.ProfileImgUrl
         };
     }
 
@@ -24,15 +31,21 @@ public static class UserMapper
     {
         return new User
         {
-            Username = userUpdateDto.Username ?? string.Empty,
             Password = userUpdateDto.Password ?? string.Empty,
             FirstName = userUpdateDto.FirstName,
             LastName = userUpdateDto.LastName,
             Age = userUpdateDto.Age,
             Email = userUpdateDto.Email,
-            PhoneNr = userUpdateDto.PhoneNr,
-            Address = userUpdateDto.Address,
-            Role = userUpdateDto.Role
+            UserPhoneNr = userUpdateDto.UserPhoneNr,
+            Role = userUpdateDto.Role,
+            StreetName = userUpdateDto.StreetName,
+            City = userUpdateDto.City,
+            Country = userUpdateDto.Country,
+            County = userUpdateDto.County,
+            BuildingNr = userUpdateDto.BuildingNr,
+            FloorNR = userUpdateDto.FloorNR,
+            PostCode = userUpdateDto.PostCode,
+            ProfileImgUrl = userUpdateDto.ProfileImgUrl
         };
     }
 
@@ -46,10 +59,19 @@ public static class UserMapper
             FirstName = user.FirstName ?? string.Empty,
             LastName = user.LastName ?? string.Empty,
             Email = user.Email ?? string.Empty,
-            PhoneNr = user.PhoneNr ?? string.Empty,
+            UserPhoneNr = user.UserPhoneNr ?? string.Empty,
             Age = user.Age ?? 0,
-            Address = user.Address,
-            Role = user.Role
+            Role = user.Role,
+            StreetName = user.StreetName,
+            City = user.City,
+            Country = user.Country,
+            County = user.County,
+            BuildingNr = user.BuildingNr,
+            FloorNR = user.FloorNR,
+            PostCode = user.PostCode,
+            ProfileImgUrl = user.ProfileImgUrl,
+            UserCreatedAt = user.UserCreatedAt,
+            UserUpdatedAt = user.UserUpdatedAt
         };
     }
 }

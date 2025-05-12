@@ -11,8 +11,15 @@ public static class FarmMapper
         return new Farm
         {
             FarmName = farmCreateDto.FarmName,
-            FarmAddress = farmCreateDto.FarmAddress,
-            CreationDate = farmCreateDto.CreationDate
+            FarmAbout = farmCreateDto.FarmAbout,
+            FarmPhoneNr = farmCreateDto.FarmPhoneNr,
+            StreetName = farmCreateDto.StreetName,
+            City = farmCreateDto.City,
+            Country = farmCreateDto.Country,
+            PostCode = farmCreateDto.PostCode,
+            BuildingNr = farmCreateDto.BuildingNr,
+            ProfileImgUrl = farmCreateDto.ProfileImgUrl,
+            CoverImgUrl = farmCreateDto.CoverImgUrl
         };
     }
 
@@ -20,11 +27,16 @@ public static class FarmMapper
     {
         return new Farm
         {
-            FarmId = farmUpdateDto.FarmId,
-            UserId = farmUpdateDto.UserId,
             FarmName = farmUpdateDto.FarmName,
-            FarmAddress = farmUpdateDto.FarmAddress,
-            CreationDate = farmUpdateDto.CreationDate
+            FarmAbout = farmUpdateDto.FarmAbout,
+            FarmPhoneNr = farmUpdateDto.FarmPhoneNr,
+            StreetName = farmUpdateDto.StreetName,
+            City = farmUpdateDto.City,
+            Country = farmUpdateDto.Country,
+            PostCode = farmUpdateDto.PostCode,
+            BuildingNr = farmUpdateDto.BuildingNr,
+            ProfileImgUrl = farmUpdateDto.ProfileImgUrl,
+            CoverImgUrl = farmUpdateDto.CoverImgUrl
         };
     }
 
@@ -34,9 +46,18 @@ public static class FarmMapper
         {
             FarmId = farm.FarmId,
             UserId = farm.UserId,
-            FarmName = farm.FarmName ?? string.Empty,
-            FarmAddress = farm.FarmAddress ?? string.Empty,
-            CreationDate = farm.CreationDate
+            FarmName = farm.FarmName,
+            FarmAbout = farm.FarmAbout,
+            FarmPhoneNr = farm.FarmPhoneNr,
+            StreetName = farm.StreetName,
+            City = farm.City,
+            Country = farm.Country,
+            PostCode = farm.PostCode,
+            BuildingNr = farm.BuildingNr,
+            ProfileImgUrl = farm.ProfileImgUrl,
+            CoverImgUrl = farm.CoverImgUrl,
+            FarmCreatedAt = farm.FarmCreatedAt,
+            FarmUpdatedAt = farm.FarmUpdatedAt
         };
     }
 }
