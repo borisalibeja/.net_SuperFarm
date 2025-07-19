@@ -18,7 +18,7 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
         {
 
             var sql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, first_name AS FirstName," +
-            "last_name AS LastName, age AS Age, email AS Email, phone_nr AS PhoneNr, address AS Address, role AS Role FROM Users";
+            "last_name AS LastName, age AS Age, user_email AS UserEmail, role AS Role FROM Users";
             var users = await _dbConnection.QueryAsync<User>(sql);
             foreach (var user in users)
             {
@@ -42,7 +42,7 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
         public async Task<User?> GetUserByIdAsync(Guid? id)
         {
             var sql = "SELECT user_id AS UserId, user_name AS Username, password AS Password, " +
-            " first_name AS FirstName, last_name AS LastName, age AS Age, email AS Email, " +
+            " first_name AS FirstName, last_name AS LastName, age AS Age, user_email AS UserEmail, " +
             "user_phone_nr AS UserPhoneNr, country_code as CountryCode, street_name as StreetName, city as City, country as Country," +
             " county as County, building_nr as BuildingNr, floor_nr as FloorNr, postcode as PostCode," +
             "profile_img_url AS ProfileImgUrl, role AS Role, user_created_at AS UserCreatedAt, " +
@@ -93,10 +93,10 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
                 parameters.Add("LastName", request.LastName);
             }
 
-            if (!string.IsNullOrWhiteSpace(request.Email))
+            if (!string.IsNullOrWhiteSpace(request.UserEmail))
             {
-                updateFields.Add("email = @Email");
-                parameters.Add("Email", request.Email);
+                updateFields.Add("user_email = @UserEmail");
+                parameters.Add("UserEmail", request.UserEmail);
             }
 
             if (!string.IsNullOrWhiteSpace(request.Password))
@@ -206,7 +206,7 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
                     throw new UnauthorizedAccessException("You do not have permission to update this user.");
                 }
                 var sql = @"UPDATE users
-                SET first_name = @FirstName, last_name = @Lastname, email = @Email, password = @Password, " +
+                SET first_name = @FirstName, last_name = @Lastname, user_email = @UserEmail, password = @Password, " +
                 " user_phone_nr = @UserPhoneNr, age = @Age, street_name = @StreetName, role = @Role::text " +
                 "WHERE user_id = @UserId";
                 if (string.IsNullOrEmpty(request.Password))
@@ -222,7 +222,7 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
                     request.FirstName,
                     request.LastName,
                     request.Age,
-                    request.Email,
+                    request.UserEmail,
                     request.UserPhoneNr,
                     request.StreetName,
                     Role = request.Role.ToString()  // Convert enum to string
@@ -240,7 +240,7 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
                 else
                 {
                     var sql = @"UPDATE users
-                    SET first_name = @FirstName, last_name = @Lastname, email = @Email, password = @Password, phone_nr = @PhoneNr, age = @Age, address = @Address, role = @Role::text
+                    SET first_name = @FirstName, last_name = @Lastname, user_email = @UserEmail, password = @Password, phone_nr = @PhoneNr, age = @Age, address = @Address, role = @Role::text
                     WHERE user_id = @UserId";
                     if (string.IsNullOrEmpty(request.Password))
                     {
@@ -254,7 +254,7 @@ namespace SuperFarm.Infrastructure.Repositories.UserRepositories
                         request.FirstName,
                         request.LastName,
                         request.Age,
-                        request.Email,
+                        request.UserEmail,
                         request.UserPhoneNr,
                         request.StreetName,
                         Role = request.Role.ToString()  // Convert enum to string

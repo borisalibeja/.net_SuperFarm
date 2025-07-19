@@ -25,7 +25,7 @@ namespace SuperFarm.Services
 
         public async Task<TokenResponseDto?> LoginAsync(UserLoginDto request)
         {
-            var sql = "SELECT user_id as UserId, user_name AS Username, password AS Password FROM Users WHERE user_name = @UserName";
+            var sql = "SELECT user_id as UserId, user_name AS Username, role as Role, password AS Password FROM Users WHERE user_name = @UserName";
             var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(sql, new { UserName = request.Username }).ConfigureAwait(false);
             if (user == null)
             {
@@ -40,7 +40,7 @@ namespace SuperFarm.Services
                 return null;
             }
 
-            Console.WriteLine($"User found: {user.Username}, Id: {user.UserId}");
+            Console.WriteLine($"User found: {user.Username}, Id: {user.UserId}, Role: {user.Role}");
             return await CreateTokenResponse(user).ConfigureAwait(false);
         }
 
@@ -64,7 +64,7 @@ namespace SuperFarm.Services
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Age = request.Age,
-                Email = request.Email,
+                UserEmail = request.UserEmail,
                 UserPhoneNr = request.UserPhoneNr,
                 StreetName = request.StreetName,
                 Role = Domain.Enums.Role.Customer
@@ -75,8 +75,8 @@ namespace SuperFarm.Services
             }
             user.Password = new PasswordHasher<User>().HashPassword(user, request.Password);
 
-            var sql = "INSERT INTO Users (user_id, user_name, password, first_name, last_name, age, email, user_phone_nr, role) " +
-                      "VALUES (@UserId, @Username, @Password, @FirstName, @LastName, @Age, @Email, @UserPhoneNr, @Role)";
+            var sql = "INSERT INTO Users (user_id, user_name, password, first_name, last_name, age, user_email, user_phone_nr, role) " +
+                      "VALUES (@UserId, @Username, @Password, @FirstName, @LastName, @Age, @UserEmail, @UserPhoneNr, @Role)";
 
             await _dbConnection.ExecuteAsync(sql, new
             {
@@ -86,7 +86,7 @@ namespace SuperFarm.Services
                 user.FirstName,
                 user.LastName,
                 user.Age,
-                user.Email,
+                user.UserEmail,
                 user.UserPhoneNr,
                 user.StreetName,
                 Role = user.Role.ToString()
@@ -97,10 +97,10 @@ namespace SuperFarm.Services
         public string CreateToken(User user)
         {
             ArgumentNullException.ThrowIfNull(user);
-            Console.WriteLine($"Creating token for user: {user.Username}, Id: {user.UserId}");
+            Console.WriteLine($"Creating token for user: {user.Username}, Id: {user.UserId}, Role: {user.Role}");
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Username?? throw new ArgumentNullException(nameof(user.Username))),
+                new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Role, user.Role.ToString())
             };
@@ -145,8 +145,8 @@ namespace SuperFarm.Services
 
 
             var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(
-                "SELECT * FROM Users WHERE user_id = @Id AND refresh_token = @RefreshToken AND refresh_token_expiry_time > @CurrentTime",
-                new { Id = id, RefreshToken = refreshToken, CurrentTime = DateTime.UtcNow });
+                "SELECT * FROM Users WHERE user_id = @UserId AND refresh_token = @RefreshToken AND refresh_token_expiry_time > @CurrentTime",
+                new { UserId = id, RefreshToken = refreshToken, CurrentTime = DateTime.UtcNow });
 
             return user;
         }

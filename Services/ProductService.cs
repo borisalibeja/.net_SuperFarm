@@ -21,6 +21,7 @@ public class ProductRepository(IDbConnection dbConnection, UserContextService us
     public async Task<Product?> GetProductByIdAsync(Guid id)
     {
         return await _dbConnection.QueryFirstOrDefaultAsync<Product>("SELECT product_id as ProductId, farm_id as FarmId," +
+
         " product_name as ProductName," +
         " product_price as ProductPrice, product_category as ProductCategory FROM products where product_id = @id", new { id });
     }

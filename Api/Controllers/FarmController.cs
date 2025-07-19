@@ -56,12 +56,30 @@ namespace SuperFarm.Controllers
             }
         }
 
+        [HttpGet("/myFarmInfo")]
+        public async Task<IActionResult> GetMyFarm()
+        {
+            try
+            {
+                var farm = await _farmRepository.GetMyFarmAsync();
+                if (farm == null)
+                {
+                    return NotFound("Farm not found");
+                }
+                return Ok(farm);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
 
         [Authorize(Policy = "FarmerPolicy")]
         [HttpPut("{FarmId?}")]
         public async Task<IActionResult> UpdateFarm([FromBody] FarmUpdateDto farmUpdate,
-    [FromQuery] FarmDisplayDto farmDisplay,
-    [FromRoute] Guid? FarmId)
+        [FromQuery] FarmDisplayDto farmDisplay,
+        [FromRoute] Guid? FarmId)
         {
 
             try
@@ -86,11 +104,27 @@ namespace SuperFarm.Controllers
 
         [Authorize(Policy = "FarmerPolicy")]
         [HttpDelete]
-        public async Task<IActionResult> DeleteFarmAsync([FromQuery] Guid? FarmId)
+        public async Task<IActionResult> DeleteFarm([FromQuery] Guid? FarmId)
         {
 
             await _farmRepository.DeleteFarmAsync(FarmId);
-            return NoContent();
+            return Ok("Farm Account deleted successfully");
+
+        }
+
+        [HttpDelete("/delete-my-farm")]
+        public async Task<IActionResult> DeleteMyFarm()
+        {
+            try
+            {
+                await _farmRepository.DeleteMyFarmAsync();
+                return Ok("Farm Account deleted successfully");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, ex.Message);
+            }
+
 
         }
 

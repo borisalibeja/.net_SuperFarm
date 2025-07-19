@@ -13,6 +13,7 @@ public static class FarmMapper
             FarmName = farmCreateDto.FarmName,
             FarmAbout = farmCreateDto.FarmAbout,
             FarmPhoneNr = farmCreateDto.FarmPhoneNr,
+            FarmEmail = farmCreateDto.FarmEmail,
             StreetName = farmCreateDto.StreetName,
             City = farmCreateDto.City,
             Country = farmCreateDto.Country,
@@ -30,6 +31,8 @@ public static class FarmMapper
             FarmName = farmUpdateDto.FarmName,
             FarmAbout = farmUpdateDto.FarmAbout,
             FarmPhoneNr = farmUpdateDto.FarmPhoneNr,
+            FarmEmail = farmUpdateDto.FarmEmail,
+
             StreetName = farmUpdateDto.StreetName,
             City = farmUpdateDto.City,
             Country = farmUpdateDto.Country,
@@ -49,6 +52,8 @@ public static class FarmMapper
             FarmName = farm.FarmName,
             FarmAbout = farm.FarmAbout,
             FarmPhoneNr = farm.FarmPhoneNr,
+            FarmEmail = farm.FarmEmail,
+
             StreetName = farm.StreetName,
             City = farm.City,
             Country = farm.Country,

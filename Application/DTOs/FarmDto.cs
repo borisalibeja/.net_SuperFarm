@@ -7,6 +7,8 @@ public class FarmCreateDto
     public string? FarmName { get; set; }
     public string? FarmAbout { get; set; }
     public string? FarmPhoneNr { get; set; }
+    public string? FarmEmail { get; set; }
+
     public string? StreetName { get; set; }
     public string? City { get; set; }
     public string? Country { get; set; }
@@ -22,6 +24,8 @@ public class FarmUpdateDto
     public string? FarmName { get; set; }
     public string? FarmAbout { get; set; }
     public string? FarmPhoneNr { get; set; }
+    public string? FarmEmail { get; set; }
+
     public string? StreetName { get; set; }
     public string? City { get; set; }
     public string? Country { get; set; }
@@ -38,6 +42,7 @@ public class FarmDisplayDto
     public string? FarmName { get; set; }
     public string? FarmAbout { get; set; }
     public string? FarmPhoneNr { get; set; }
+    public string? FarmEmail { get; set; }
     public string? StreetName { get; set; }
     public string? City { get; set; }
     public string? Country { get; set; }

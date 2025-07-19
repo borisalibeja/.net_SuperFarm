@@ -13,7 +13,7 @@ namespace SuperFarm.Application.DTOs
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public int? Age { get; set; }
-        public string? Email { get; set; }
+        public string? UserEmail { get; set; }
         public string? UserPhoneNr { get; set; }
         public string? CountryCode { get; set; }
         public string? StreetName { get; set; }
@@ -24,6 +24,7 @@ namespace SuperFarm.Application.DTOs
         public string? FloorNr { get; set; }
         public string? PostCode { get; set; }
         public string? ProfileImgUrl { get; set; }
+        public Role? Role { get; set; }
 
     }
 
@@ -33,7 +34,7 @@ namespace SuperFarm.Application.DTOs
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public int? Age { get; set; }
-        public string? Email { get; set; }
+        public string? UserEmail { get; set; }
         public string? UserPhoneNr { get; set; }
         public string? CountryCode { get; set; }
         public string? StreetName { get; set; }
@@ -46,7 +47,6 @@ namespace SuperFarm.Application.DTOs
         public string? ProfileImgUrl { get; set; }
 
 
-        [JsonConverter(typeof(StringEnumConverter))]
         public Role Role { get; set; }
     }
 
@@ -58,7 +58,7 @@ namespace SuperFarm.Application.DTOs
         public string? FirstName { get; set; } = string.Empty;
         public string? LastName { get; set; } = string.Empty;
         public int? Age { get; set; }
-        public string? Email { get; set; } = string.Empty;
+        public string? UserEmail { get; set; } = string.Empty;
         public string? UserPhoneNr { get; set; }
         public string? CountryCode { get; set; }
         public string? StreetName { get; set; }
@@ -70,7 +70,6 @@ namespace SuperFarm.Application.DTOs
         public string? PostCode { get; set; }
         public string? ProfileImgUrl { get; set; }
 
-        [JsonConverter(typeof(StringEnumConverter))]
         public Role Role { get; set; }
         public DateTime? UserCreatedAt { get; set; }
         public DateTime? UserUpdatedAt { get; set; }
